@@ -1,0 +1,21 @@
+<div class="modal-header">
+  <button type="button" ng-click="Modal.close()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <h3 class="modal-title"><span class="icon-question-white"></span>차트 도움말</h3>
+</div>
+
+<div class="modal-body">
+  <div class="description">
+    <h4>{{Modal.viztype.title}}</h4>
+    <div>
+      <p>{{Modal.viztype.description}}</p>
+    </div>
+  </div>
+  <div class="sample-data">
+    <li>샘플 데이터</li>
+    <img ng-src="{{Modal.viztype.sample_image}}">
+  </div>
+  <div class="data-setting">
+    <li>데이터 설정</li>
+    <img ng-src="{{Modal.viztype.setting_image}}">
+  </div>
+</div>

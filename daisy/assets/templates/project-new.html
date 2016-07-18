@@ -1,0 +1,349 @@
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#not-google-plus-nav">
+        <span class="sr-only">Toggle Navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href=" ">
+        <span class="navbar-brand-text">DAISY</span>
+        <span class="navbar-brand-text-small">Data Visualization</span>
+      </a>
+      <form class="navbar-form navbar-left">
+        <div class="form-group">
+          <input type="text" class="form-control" ng-model="vm.item.title" placeholder="제목없음">
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-control" ng-model="vm.item.user" placeholder="제작자">
+        </div>
+        <!-- <button ng-click="vm.testFunction()" type="button" class="btn btn-primary">테스트</button> -->
+      </form>
+    </div> <!-- ./navbar-header -->
+
+    <div class="collapse navbar-collapse" id="not-google-plus-nav">
+      <ul id="navbar-middle-pos" class="nav navbar-nav pull-right">
+        <button ng-click="vm.save()" type="button" class="btn btn-primary"><span class="icon-btn-confirm"></span>저장</button>
+        <button ng-click="vm.confirmCancelModal()" type="button" class="btn btn-primary" style="margin-right: 110px;"><span class="icon-btn-cancel"></span>취소</button>
+      </ul>
+    </div> <!-- /.collapse.navbar-collapse -->
+  </div> <!-- /.container -->
+</nav>
+
+<div id="project-new-container" ng-class="{'toggled': vm.sidebarHide}">
+  <div id="fixed-container">
+    <div id="item-container">
+      <!-- 시각화 수정 영역 -->
+      <!-- <div><pre>vm.item.visualize: {{vm.item.visualize | json}}</pre></div> -->
+      <div ng-if="vm.item.visualize.length > 0" ng-repeat="(key, viz) in vm.item.visualize" class="viz-container">
+        <input type="text" class="form-control viz-meta-title" ng-model="viz.data.metadata.title">
+
+        <div class="item-btn-groups">
+          <button ng-click="vm.imgDownload('png')" type="button" class="btn-link"><span class="icon-img-download"></span>이미지 다운로드</button>
+          <button ng-click="vm.editItem(key)" type="button" class="btn-link"><span class="icon-property"></span>설정</button>
+          <button ng-click="vm.deleteItem(key)" type="button" class="btn-link"><span class="icon-delete"></span>삭제</button>
+        </div>
+
+        <div class="visualize-item-container">
+          <div ng-if="viz.matched === false" class="viz-nomatch">
+            <div><h3>차트를 표시할 수 없습니다. 데이터의 범위를 선택하세요</h3></div>
+          </div>
+          <nj-visualization ng-if="viz.matched" type="vm.types[viz.visualize_type - 1].alias" properties="viz.attribute" style="{ width: 570, height: 400, margin: { top: 50, right: 50, bottom: 50, left: 50 } }" data="viz.data.visualize_data"></nj-visualization>
+        </div>
+
+      </div>
+      <div class="add-data-area">
+        <div class="add-data-btn">
+          <button ng-click="vm.changeSidebar('choose-method')" type="button" class="btn-link"><span style="font-size: 46px;">+</span> 데이터 추가하기</button>
+        </div>
+      </div>
+      <hr>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div ng-if="!vm.sidebarHide" ng-click="vm.sidebarHide = true" ng-class="{'sidebar-outer-block-shown': !vm.sidebarHide}">
+  </div>
+  <div id="sidebar" ng-if="!vm.sidebarHide" ng-class="{'sidebar-extend': vm.active_tab == 1}">
+    <div ng-show="vm.sidebar_view === 'choose-method'" class="sidebar-outer">
+      <div class="add-item-buttons">
+        <button ng-click="vm.sidebarHide=true" type="button" class="close sidebar-hide-btn">x</button>
+        <h3><span class="icon-add-data"></span>데이터 추가하기</h3>
+        <div class="add-item-buttons-center">
+          <button ng-click="vm.sidebar_view = 'public-list'" type="button" class="btn btn-default btn-blk" style="margin-bottom: 20px;"><span class="icon-public-data"></span>공공데이터</button><br>
+          <button ng-click="vm.uploadFile()" type="button" class="btn btn-default btn-blk"><span class="icon-data-upload"></span>데이터 업로드</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 공공데이터 검색 -->
+    <div ng-show="vm.sidebar_view === 'public-list'" class="bg-white sidebar-outer">
+      <!-- 담기 중 spinner block -->
+      <div ng-if="vm.isGettingData" ng-class="{'load-spinner-block-shown': vm.isGettingData}">
+        <p class="loading-message">공공데이터 로드 중</p>
+      </div>
+
+      <button ng-click="vm.sidebarHide=true" type="button" class="close sidebar-hide-btn">x</button>
+      <div class="search-bar-area">
+        <h3><button ng-click="vm.sidebar_view = 'choose-method'" type="button" class="btn btn-default" style="float: left;">뒤로</button><span class="icon-convex"></span>공공데이터 검색</h3>
+        <form ng-submit="vm.search(vm.keyword)" class="search-form">
+          <div class="input-group">
+            <input ng-model="vm.keyword" type="text" class="form-control">
+            <span ng-click="vm.search(vm.keyword)" type="button" class="input-group-addon cursor-pointer search-btn">검색</span>
+          </div>
+        </form>
+      </div>
+
+      <div class="search-result-area">
+        <div ng-show="vm.isSearching" class="alert">
+          <button type="button" class="close sidebar-hide-btn" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <strong>검색 중</strong>
+        </div>
+        <div ng-if="vm.searchResult.results.length === 0">
+          <p>검색결과가 없습니다.</p>
+        </div>
+
+        <!-- 검색결과 -->
+        <div ng-if="vm.searchResult.results.length > 0" class="result-list">
+          <table>
+            <tr class="search-result-item" ng-repeat="public_item in vm.searchResult.results">
+              <td ng-click="vm.loadPublicItems(public_item)" class="load-btn-table">
+                <div class="icon-pulicload"></div>
+                <button type="button" class="btn-link btn-load">담기</button>
+              </td>
+              <td class="item-description">
+                <h4>{{public_item.title}}</h4>
+                <div>기관 : {{public_item.source}}</div>
+                <div>등록일 : {{public_item.regist_date}}</div>
+                <div>분류 : {{public_item.category}}</div>
+              </td>
+            </tr>
+          </table>
+          <div class="project-pagination text-center">
+            <uib-pagination total-items="vm.searchResult.count" ng-model="vm.searchPage" max-size=5 items-per-page="10" previous-text="&lsaquo;" next-text="&rsaquo;" force-ellipses="true" ng-change="vm.searchPageChanged()"></uib-pagination>
+          </div>
+        </div>
+      </div>
+    </div><!-- /공공데이터 검색 -->
+
+    <!-- EDIT view -->
+    <div ng-show="vm.sidebar_view === 'data-edit'" class="sidebar-outer">
+      <h3><span class="icon-property"></span>설정</h3>
+      <button ng-click="vm.sidebarHide=true" type="button" class="close sidebar-hide-btn">x</button>
+      <uib-tabset active="vm.active_tab">
+        <uib-tab index="0">
+          <uib-tab-heading>
+            <span class="icon-desc-meta"></span>상세보기
+          </uib-tab-heading>
+          <div class="container">
+            <div ng-if="vm.cur_viz.data.metadata.upload_type === 3"><!-- 공공데이터 업로드 -->
+              <table class="meta-table">
+                <tbody>
+                  <tr>
+                    <th><span class="icon-list-bullet"></span>기관</th>
+                    <td>{{vm.cur_viz.data.metadata.source}}</td>
+                  </tr>
+                  <tr>
+                    <th><span class="icon-list-bullet"></span>제목</th>
+                    <td>{{vm.cur_viz.data.metadata.title}}</td>
+                  </tr>
+                  <tr>
+                    <th><span class="icon-list-bullet"></span>등록날짜</th>
+                    <td>{{vm.cur_viz.data.metadata.regist_date}}</td>
+                  </tr>
+                  <tr>
+                    <th><span class="icon-list-bullet"></span>분류</th>
+                    <td><span ng-if="!vm.cur_viz.data.metadata.category">미분류</span><span ng-if="vm.cur_viz.data.metadata.category">{{vm.cur_viz.data.metadata.category}}</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div ng-if="vm.cur_viz.data.metadata.upload_type === 1"><!-- 데이터 직접업로드 -->
+              <div class="">
+                <button ng-click="vm.changeFile()" type="button" class="btn btn-primary" style="width: 408px; margin-top: 20px; margin-left: 13px;">파일변경</button>
+              </div>
+              <table class="meta-table">
+                <tbody>
+                  <tr>
+                    <th><span class="icon-list-bullet"></span>제목</th>
+                    <td>{{vm.cur_viz.data.metadata.title}}</td>
+                  </tr>
+                  <tr>
+                    <th><span class="icon-list-bullet"></span>등록날짜</th>
+                    <td>{{vm.date_now | date:'yyyy-MM-dd'}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </uib-tab>
+        <uib-tab index="1">
+          <uib-tab-heading>
+            <span class="icon-desc-data"></span>데이터설정
+          </uib-tab-heading>
+          <div>
+            <button ng-click="vm.openChartModal()" type="button" class="btn btn-default btn-blue-border">
+              시각화 변경 <br>
+              {{vm.types[vm.cur_viz.visualize_type - 1].alias}}
+            </button>
+            <button ng-click="vm.viztypeHelpModal(vm.cur_viz.visualize_type)" type="button" class="btn btn-default btn-blue-border" style="height: 54px;">
+              <span class="icon-question-gray"></span>차트 설정
+            </button>
+            <button ng-click="vm.dataDownload()" type="button" class="btn btn-default btn-blue-border" style="height: 54px;">
+              데이터 다운
+            </button>
+          </div>
+          <!-- 데이터 설정 -->
+          <section class="visualize-attrs">
+            <h4>데이터 설정</h4>
+            <div ng-repeat="(key, value) in vm.cur_viz.attribute.header" class="form-group">
+              <label class="control-label col-xs-3">{{ App.constants.visualizeAttrs[key] || key }}</label>
+
+              <div class="col-xs-9">
+                <select chosen width="'100%'" options="vm.cur_viz.data.visualize_data[0]" ng-if="!!App.util.isArray(value)" ng-model="vm.cur_viz.attribute.header[key]" multiple ng-options="label for label in vm.cur_viz.data.visualize_data[0]">
+                  <option value="">선택하세요</option>
+                </select>
+
+                <select chosen width="'100%'" options="vm.cur_viz.data.visualize_data[0]" ng-if="! App.util.isArray(value)" ng-model="vm.cur_viz.attribute.header[key]" ng-options="label for label in vm.cur_viz.data.visualize_data[0]">
+                  <option value="">선택하세요</option>
+                </select>
+              </div>
+            </div>
+          </section>
+          <button ng-click="vm.selectVizRange()" type="button" class="btn btn-default pull-right">
+            선택 영역 사용
+          </button>
+          <article style="clear: both;" hot-table-container id="visualize-table-data" hot-id="visualize-table-data" datarows="vm.cur_viz.data.origin_data" settings="vm.handsontableSettings"><hot-table datarows="[[]]"></hot-table></article>
+        </uib-tab>
+        <uib-tab index="2">
+          <uib-tab-heading>
+            <span class="icon-viz-property"></span>시각화설정
+          </uib-tab-heading>
+          <section class="visualize-edit-chart-container">
+            <h3>{{ vm.model.aka[0] }}</h3>
+          </section>
+
+          <!-- 시각화 설정 -->
+          <section class="visualize-attrs">
+            <h4>시각화 설정</h4>
+            <div ng-repeat="(key, value) in vm.cur_viz.attribute" ng-if="['brush', 'font', 'graph', 'network', 'timeFormat', 'xAxis', 'yAxis'].indexOf(key) > -1">
+              <div ng-if="key === 'brush'" class="form-group">
+                <label class="control-label col-xs-3">{{ App.constants.visualizeAttrs[key] || key }}</label>
+
+                <div class="col-xs-9 checkbox">
+                  <input type="checkbox" ng-model="vm.cur_viz.attribute.brush">
+                </div>
+              </div>
+
+              <div ng-if="key === 'font'">
+                <div ng-repeat="(fontKey, fontValue) in vm.cur_viz.attribute.font" class="form-group">
+                  <label class="control-label col-xs-3">{{ App.constants.visualizeAttrs[fontKey] || fontKey }}</label>
+
+                  <div class="col-xs-9">
+                    <input type="text" ng-model="vm.cur_viz.attribute.font[fontKey]" ng-model-options="{ debounce: { default: 500, blur: 0 } }" class="form-control">
+                  </div>
+                </div>
+              </div>
+
+              <div ng-if="key === 'graph'">
+                <div ng-repeat="(graphKey, graphValue) in vm.cur_viz.attribute.graph" class="form-group">
+                  <label class="control-label col-xs-3">{{ App.constants.visualizeAttrs[graphKey] || graphKey }}</label>
+
+                  <div ng-switch="graphKey">
+                    <div ng-switch-when="colorBegin" class="col-xs-9">
+                      <input type="color" ng-model="vm.cur_viz.attribute.graph.colorBegin" ng-model-options="{ debounce: { default: 500, blur: 0 } }" class="form-control">
+                    </div>
+
+                    <div ng-switch-when="colorEnd" class="col-xs-9">
+                      <input type="color" ng-model="vm.cur_viz.attribute.graph.colorEnd" ng-model-options="{ debounce: { default: 500, blur: 0 } }" class="form-control">
+                    </div>
+
+                    <div ng-switch-when="colorPreset" class="col-xs-9">
+                      <select ng-model="vm.cur_viz.attribute.graph.colorPreset" ng-options="color.colors as color.label for color in App.constants.NJColors" class="form-control">
+                        <option value="">선택하세요</option>
+                      </select>
+                    </div>
+
+                    <div ng-switch-when="fontColor" class="col-xs-9">
+                      <input type="color" ng-model="vm.cur_viz.attribute.graph.fontColor" ng-model-options="{ debounce: { default: 500, blur: 0 } }" class="form-control">
+                    </div>
+
+                    <div ng-switch-when="groupColor" class="col-xs-9 checkbox">
+                      <input type="checkbox" ng-model="vm.cur_viz.attribute.graph.groupColor" ng-model-options="{ debounce: { default: 500, blur: 0 } }">
+                    </div>
+
+                    <div ng-switch-when="hexaRadius" class="col-xs-9">
+                      <input type="number" ng-model="vm.cur_viz.attribute.graph.hexaRadius" ng-model-options="{ debounce: { default: 500, blur: 0 } }" min="1" step="1" class="form-control">
+                    </div>
+
+                    <div ng-switch-when="innerInterval" class="col-xs-9">
+                      <input type="number" ng-model="vm.cur_viz.attribute.graph.innerInterval" ng-model-options="{ debounce: { default: 500, blur: 0 } }" min="0" max="1" step="0.1" class="form-control">
+                    </div>
+
+                    <div ng-switch-when="innerRadius" class="col-xs-9">
+                      <input type="number" ng-model="vm.cur_viz.attribute.graph.innerRadius" ng-model-options="{ debounce: { default: 500, blur: 0 } }" min="0" max="1" step="0.01" class="form-control">
+                    </div>
+
+                    <div ng-switch-when="outerInterval" class="col-xs-9">
+                      <input type="number" ng-model="vm.cur_viz.attribute.graph.outerInterval" ng-model-options="{ debounce: { default: 500, blur: 0 } }" min="0" max="1" step="0.1" class="form-control">
+                    </div>
+
+                    <div ng-switch-when="outerRadius" class="col-xs-9">
+                      <input type="number" ng-model="vm.cur_viz.attribute.graph.outerRadius" ng-model-options="{ debounce: { default: 500, blur: 0 } }" min="0" max="1" step="0.01" class="form-control">
+                    </div>
+
+                    <div ng-switch-when="scale" class="col-xs-9">
+                      <select ng-model="vm.cur_viz.attribute.graph.scale" class="form-control">
+                        <option value="linear">선형</option>
+                        <option value="log">로그</option>
+                        <option value="sqrt">제곱근</option>
+                      </select>
+                    </div>
+
+                    <div ng-switch-when="shape" class="col-xs-9">
+                      <select ng-model="vm.cur_viz.attribute.graph.shape" class="form-control">
+                        <option value="linear">선형</option>
+                        <option value="step-after">스텝</option>
+                      </select>
+                    </div>
+
+                    <div ng-switch-default class="col-xs-9">
+                      <input type="text" ng-model="vm.cur_viz.attribute.graph[graphKey]" ng-model-options="{ debounce: { default: 500, blur: 0 } }" class="form-control">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div ng-if="key === 'timeFormat'" class="form-group">
+                <label class="control-label col-xs-3">{{ App.constants.visualizeAttrs[key] || key }}</label>
+
+                <div class="col-xs-9">
+                  <input type="text" ng-model="vm.cur_viz.attribute.timeFormat" ng-model-options="{ debounce: { default: 500, blur: 0 } }" class="form-control">
+                </div>
+              </div>
+
+              <div ng-if="['xAxis', 'yAxis'].indexOf(key) > -1">
+                <div ng-repeat="(axisKey, axisValue) in vm.cur_viz.attribute[key]" class="form-group">
+                  <label class="control-label col-xs-3">{{ App.constants.visualizeAttrs[key] || key }} {{ App.constants.visualizeAttrs[axisKey] || axisKey }}</label>
+
+                  <div ng-if="axisKey === 'label'" class="col-xs-9">
+                    <input type="text" ng-model="vm.cur_viz.attribute[key].label" ng-model-options="{ debounce: { default: 500, blur: 0 } }" class="form-control">
+                  </div>
+                  <div ng-if="axisKey === 'offset'">
+                    <div class="col-xs-2">
+                      <input type="number" ng-model="vm.cur_viz.attribute[key].offset[0]" ng-model-options="{ debounce: { default: 500, blur: 0 } }" class="form-control">
+                    </div>
+                    <div class="col-xs-2">
+                      <input type="number" ng-model="vm.cur_viz.attribute[key].offset[1]" ng-model-options="{ debounce: { default: 500, blur: 0 } }" class="form-control">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div><!-- / vm.cur_viz.attribute -->
+          </section>
+        </uib-tab>
+      </uib-tabset>
+    </div><!-- /EDIT view -->
+  </div>
+</div>

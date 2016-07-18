@@ -1,0 +1,34 @@
+{% load static %}
+{% load daisy_extras %}
+<!DOCTYPE html>
+{% with DESCRIPTION='' SITE_TITLE='Daisy' SITE_THUMBNAIL='' %}
+<html lang="ko" ng-app="daisy">
+<head>
+  <title>{{ SITE_TITLE }}</title>
+  <base href="/{% get_postfix %}" />
+
+  <link rel="stylesheet" type="text/css" href="{% static 'stylesheets/styles.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'stylesheets/lib.css' %}" />
+</head>
+
+<body ng-cloak ng-controller="AppController as App">
+  {% csrf_token %}
+  {% verbatim %}
+  <div ui-view></div>
+  <file-uploader></file-uploader>
+  <div class="toast">
+    <div class="alert "ng-if="App.ToastService.message" type="{{ App.ToastService.message.type }}" close="App.ToastService.close()">
+      <p class="bg-danger">{{ App.ToastService.message.text }}</p>
+    </div>
+    </div>
+  </div>
+{% endverbatim %}
+  {% include 'footer.html' %}
+
+  <script>(function(w){'use strict';w.appConfig={siteTitle:'{{ SITE_TITLE }}',debug:{% if debug %}true{% else %}false{% endif %},staticUrl:'{% get_static_prefix %}'};})(window);</script>
+
+  <script type="text/javascript" src="{% static 'js/lib.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/app.js' %}"></script>
+</body>
+</html>
+{% endwith %}

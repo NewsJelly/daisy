@@ -1,0 +1,111 @@
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#not-google-plus-nav">
+        <span class="sr-only">Toggle Navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href=" ">
+        <span class="navbar-brand-text">DAISY</span>
+        <span class="navbar-brand-text-small">Data Visualization</span>
+      </a>
+    </div> <!-- ./navbar-header -->
+    <div class="collapse navbar-collapse" id="not-google-plus-nav">
+      <ul id="navbar-middle-pos" class="nav navbar-nav pull-right">
+        <button ui-sref="project-new" type="button" class="btn btn-default btn-makeviz"><span class="icon-vizmake"></span>시각화 만들기</button>
+      </ul>
+    </div> <!-- /.collapse.navbar-collapse -->
+  </div> <!-- /.container -->
+</nav>
+
+<div id="project-item-container">
+  <div id="fixed-container">
+    <div id="item-container">
+      <h2>{{vm.item.title}}</h2>
+      <div class="item-author">
+        작성자 : {{vm.item.user}}
+      </div>
+      <div class="item-created">
+        작성일 : {{vm.item.published | date:'yyyy.MM.dd'}}
+      </div>
+
+      <hr>
+
+      <div ng-repeat="viz in vm.item.visualize">
+        <div class="pull-left">
+          <div class="btn-group btn-group-sm">
+            <h4>{{viz.data.metadata.title}}</h4>
+            <!-- <button ng-click="vm.download('png')" type="button" class="btn btn-sm btn-default">이미지 다운로드</button> -->
+            <!-- <button ng-click="vm.download('svg')" type="button" class="btn btn-sm btn-default">벡터 다운로드</button> -->
+          </div>
+        </div>
+        <div class="pull-right">
+          <button id="menu-toggle" ng-click="vm.showDetail(viz.data)" type="button" class="btn-link">
+            <span class="icon-see-desc"></span>상세보기
+          </button>
+        </div>
+        <div class="project-item">
+          <nj-visualization type="viz.type.alias" properties="viz.attribute" style="{ width: 570, height: 400, margin: { top: 50, right: 50, bottom: 50, left: 50 } }" data="viz.data.visualize_data"></nj-visualization>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- sidebar -->
+  <div ng-if="!vm.sidebarHide" ng-click="vm.sidebarHide = true" ng-class="{'sidebar-outer-block-shown': !vm.sidebarHide}">
+  </div>
+  <div id="sidebar" ng-if="!vm.sidebarHide" ng-class="{'sidebar-extend': vm.active_tab == 1}">
+    <div class="sidebar-outer">
+      <button ng-click="vm.sidebarHide=true" type="button" class="close sidebar-hide-btn">x</button>
+      <h3><span class="icon-desc-convex"></span>데이터 상세보기</h3>
+      <uib-tabset active="vm.active_tab">
+        <uib-tab index="0">
+          <uib-tab-heading>
+            <span class="icon-desc-meta"></span> 상세보기
+          </uib-tab-heading>
+          <div ng-if="vm.metadata.upload_type === 3"><!-- 공공데이터 업로드 -->
+            <table class="meta-table">
+              <tbody>
+                <tr>
+                  <th><span class="icon-list-bullet"></span>기관</th>
+                  <td>{{vm.metadata.source}}</td>
+                </tr>
+                <tr>
+                  <th><span class="icon-list-bullet"></span>제목</th>
+                  <td>{{vm.metadata.title}}</td>
+                </tr>
+
+                <tr>
+                  <th><span class="icon-list-bullet"></span>등록날짜</th>
+                  <td>{{vm.metadata.regist_date}}</td>
+                </tr>
+                <tr>
+                  <th><span class="icon-list-bullet"></span>분류</th>
+                  <td><span ng-if="!vm.metadata.category">미분류</span><span ng-if="vm.metadata.category">{{vm.metadata.category}}</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div ng-if="vm.metadata.upload_type === 1"><!-- 데이터 직접업로드 -->
+            <table class="meta-table">
+              <tbody>
+                <tr>
+                  <th><span class="icon-list-bullet"></span>제목</th>
+                  <td>{{vm.metadata.title}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </uib-tab>
+        <uib-tab index="1" select="vm.refreshTable()">
+          <uib-tab-heading>
+            <span class="icon-desc-data"></span> 데이터보기
+          </uib-tab-heading>
+          <article hot-table-container id="visualize-table-data" datarows="vm.table_data" settings="App.constants.handsontableReadOnly"><hot-table datarows="[[]]"></hot-table></article>
+        </uib-tab>
+      </uib-tabset>
+    </div>
+  </div>
+</div>
