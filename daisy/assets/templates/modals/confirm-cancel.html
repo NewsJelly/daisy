@@ -1,8 +1,7 @@
-<div class="modal-header">
-  <button type="button" ng-click="Modal.close()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-  <h3 class="modal-title">취소하시겠습니까?</h3>
+<div class="modal-body">
+  <p>취소하시겠습니까?</p>
 </div>
 <div class="modal-footer">
-  <button class="btn btn-primary" type="button" ng-click="Modal.ok()">OK</button>
-  <button class="btn btn-warning" type="button" ng-click="Modal.cancel()">Cancel</button>
+  <button class="btn btn-primary confirm-btn" type="button" ng-click="Modal.ok()">확인</button>
+  <button class="btn btn-default cancel-btn" type="button" ng-click="Modal.cancel()">취소</button>
 </div>

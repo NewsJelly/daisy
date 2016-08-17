@@ -37,7 +37,7 @@
       <!-- 시각화 수정 영역 -->
       <!-- <div><pre>vm.item.visualize: {{vm.item.visualize | json}}</pre></div> -->
       <div ng-if="vm.item.visualize.length > 0" ng-repeat="(key, viz) in vm.item.visualize" class="viz-container">
-        <input type="text" class="form-control viz-meta-title" ng-model="viz.data.metadata.title">
+        <input type="text" ng-attr-id="{{ 'viz-scroll-id-' + key }}" class="form-control viz-meta-title" ng-model="viz.data.metadata.title">
 
         <div class="item-btn-groups">
           <button ng-click="vm.imgDownload('png')" type="button" class="btn-link"><span class="icon-img-download"></span>이미지 다운로드</button>
@@ -51,7 +51,7 @@
           </div>
           <nj-visualization ng-if="viz.matched" type="vm.types[viz.visualize_type - 1].alias" properties="viz.attribute" style="{ width: 570, height: 400, margin: { top: 50, right: 50, bottom: 50, left: 50 } }" data="viz.data.visualize_data"></nj-visualization>
         </div>
-
+        <hr ng-if="vm.item.visualize.length > 1 && vm.item.visualize.length - 1 !== key" style="border-top: 2px solid #cbcbcb; margin-bottom: 40px;">
       </div>
       <div class="add-data-area">
         <div class="add-data-btn">
@@ -60,6 +60,12 @@
       </div>
       <hr>
     </div>
+  </div>
+
+  <!-- 담기 중 spinner block -->
+  <div ng-if="vm.isGettingData" ng-class="{'load-spinner-block-shown': vm.isGettingData}">
+    <div class="loading-indicator"></div>
+    <p class="loading-message">공공데이터 로드 중</p>
   </div>
 
   <!-- Sidebar -->
@@ -79,14 +85,15 @@
 
     <!-- 공공데이터 검색 -->
     <div ng-show="vm.sidebar_view === 'public-list'" class="bg-white sidebar-outer">
-      <!-- 담기 중 spinner block -->
-      <div ng-if="vm.isGettingData" ng-class="{'load-spinner-block-shown': vm.isGettingData}">
-        <p class="loading-message">공공데이터 로드 중</p>
+      <div class="search-bar-close-area">
+        <span ng-click="vm.sidebar_view = 'choose-method'" class="icon-backbtn"></span>
+        <button ng-click="vm.sidebar_view = 'choose-method'" type="button" class="btn-link back-btn">뒤로가기</button>
+        <button ng-click="vm.sidebarHide=true" type="button" class="close sidebar-hide-btn">x</button>
       </div>
 
-      <button ng-click="vm.sidebarHide=true" type="button" class="close sidebar-hide-btn">x</button>
       <div class="search-bar-area">
-        <h3><button ng-click="vm.sidebar_view = 'choose-method'" type="button" class="btn btn-default" style="float: left;">뒤로</button><span class="icon-convex"></span>공공데이터 검색</h3>
+        <h3><span class="icon-convex"></span>공공데이터 검색</h3>
+
         <form ng-submit="vm.search(vm.keyword)" class="search-form">
           <div class="input-group">
             <input ng-model="vm.keyword" type="text" class="form-control">
@@ -201,19 +208,29 @@
               <label class="control-label col-xs-3">{{ App.constants.visualizeAttrs[key] || key }}</label>
 
               <div class="col-xs-9">
-                <select chosen width="'100%'" options="vm.cur_viz.data.visualize_data[0]" ng-if="!!App.util.isArray(value)" ng-model="vm.cur_viz.attribute.header[key]" multiple ng-options="label for label in vm.cur_viz.data.visualize_data[0]">
-                  <option value="">선택하세요</option>
+                <select multiple chosen data-placeholder-text-multiple="'선택하세요'" width="'100%'" options="vm.cur_viz.data.visualize_data[0]" ng-if="!!App.util.isArray(value)" ng-model="vm.cur_viz.attribute.header[key]" ng-options="label for label in vm.cur_viz.data.visualize_data[0]">
+                  <!-- <option value="">선택하세요</option> -->
                 </select>
 
-                <select chosen width="'100%'" options="vm.cur_viz.data.visualize_data[0]" ng-if="! App.util.isArray(value)" ng-model="vm.cur_viz.attribute.header[key]" ng-options="label for label in vm.cur_viz.data.visualize_data[0]">
-                  <option value="">선택하세요</option>
+                <select chosen data-placeholder-text-single="'선택하세요'" width="'100%'" options="vm.cur_viz.data.visualize_data[0]" ng-if="! App.util.isArray(value)" ng-model="vm.cur_viz.attribute.header[key]" ng-options="label for label in vm.cur_viz.data.visualize_data[0]">
+                  <!-- <option value="">선택하세요</option> -->
                 </select>
               </div>
             </div>
           </section>
-          <button ng-click="vm.selectVizRange()" type="button" class="btn btn-default pull-right">
-            선택 영역 사용
-          </button>
+
+          <!-- 선택영역 사용 부분. -->
+          <section class="select-area-option">
+            <span style="font-size: 16px;">
+              * 드래그 하여
+              <span class="emphasis-font">영역을 지정</span>
+              하면 해당데이터만 시각화 할 수 있습니다.
+            </span>
+            <button ng-click="vm.selectVizRange()" type="button" class="btn btn-default pull-right btn-select-area">
+              <span class="icon-selected-area"></span>선택 영역 사용
+            </button>
+          </section>
+
           <article style="clear: both;" hot-table-container id="visualize-table-data" hot-id="visualize-table-data" datarows="vm.cur_viz.data.origin_data" settings="vm.handsontableSettings"><hot-table datarows="[[]]"></hot-table></article>
         </uib-tab>
         <uib-tab index="2">

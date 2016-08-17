@@ -14,7 +14,10 @@
     </div> <!-- ./navbar-header -->
     <div class="collapse navbar-collapse" id="not-google-plus-nav">
       <ul id="navbar-middle-pos" class="nav navbar-nav pull-right">
-        <button ui-sref="project-new" type="button" class="btn btn-default btn-makeviz"><span class="icon-vizmake"></span>시각화 만들기</button>
+        <form ng-submit="vm.searchByKeyword(keyword)">
+          <input ng-model="keyword" type="text" class="form-control" placeholder="공공데이터 검색" style="display: inline-block; width: 140px; background-color: #084ED3; border: 2px solid #2684F7; color: #fff;">
+          <button ui-sref="project-new" type="button" class="btn btn-default btn-makeviz"><span class="icon-vizmake"></span>시각화 만들기</button>
+        </form>
       </ul>
     </div> <!-- /.collapse.navbar-collapse -->
   </div> <!-- /.container -->
@@ -33,12 +36,10 @@
 
       <hr>
 
-      <div ng-repeat="viz in vm.item.visualize">
+      <div ng-repeat="(key, viz) in vm.item.visualize">
         <div class="pull-left">
           <div class="btn-group btn-group-sm">
             <h4>{{viz.data.metadata.title}}</h4>
-            <!-- <button ng-click="vm.download('png')" type="button" class="btn btn-sm btn-default">이미지 다운로드</button> -->
-            <!-- <button ng-click="vm.download('svg')" type="button" class="btn btn-sm btn-default">벡터 다운로드</button> -->
           </div>
         </div>
         <div class="pull-right">
@@ -49,6 +50,7 @@
         <div class="project-item">
           <nj-visualization type="viz.type.alias" properties="viz.attribute" style="{ width: 570, height: 400, margin: { top: 50, right: 50, bottom: 50, left: 50 } }" data="viz.data.visualize_data"></nj-visualization>
         </div>
+        <hr ng-if="vm.item.visualize.length > 1 && vm.item.visualize.length-1 !== key" style="border-top: 2px solid #cbcbcb; margin-bottom: 40px;">
       </div>
     </div>
   </div>

@@ -22,18 +22,20 @@
     </div> <!-- /.collapse.navbar-collapse -->
   </div> <!-- /.container -->
 </nav>
-<div class="row search">
-  <h2>데이터 시각화가 어렵다고요? 지금 바로 DAISY를 사용해 보세요!</h2>
-  <h4>데이터 시각화가 어렵다고요? 지금 바로 DAISY를 사용해 보세요!</h4>
-  <div class="col-md-4 col-md-offset-4">
-    <form ng-submit="vm.searchByKeyword(keyword)">
-      <div class="input-group">
-        <input ng-model="keyword" type="text" class="form-control" placeholder="공공데이터 검색하기">
-        <span class="input-group-btn">
-          <button ui-sref="project-new({'keyword': keyword})" class="btn btn-default btn-search-main" type="button">검 색</button>
-        </span>
-      </div>
-    </form>
+<div class="container-fluid">
+  <div class="row search">
+	<h2>데이터 시각화가 어렵다고요? 지금 바로 DAISY를 사용해 보세요!</h2>
+	<h4>데이터 시각화가 어렵다고요? 지금 바로 DAISY를 사용해 보세요!</h4>
+	<div class="col-md-4 col-md-offset-4">
+      <form ng-submit="vm.searchByKeyword(keyword)">
+		<div class="input-group">
+          <input ng-model="keyword" type="text" class="form-control" placeholder="공공데이터 검색하기">
+          <span class="input-group-btn">
+			<button ui-sref="project-new({'keyword': keyword})" class="btn btn-default btn-search-main" type="button">검 색</button>
+          </span>
+		</div>
+      </form>
+	</div>
   </div>
 </div>
 <div class="container">
