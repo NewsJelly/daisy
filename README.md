@@ -31,7 +31,7 @@ $ source env/bin/activate
 (env) $ pip install -r requirements.txt
 (env) $ cd daisy
 (env) $ mkdir -p media/uploaded_images && mv dumpdata/*data media/uploaded_images
-(env) $ python manage.py makemigrations && python manage.py migrate
+(env) $ python manage.py makemigrations && python manage.py migrate --run-syncdb
 (env) $ python manage.py loaddata dumpdata/VisualizeType.json
 (env) $ python manage.py runserver
 ```
