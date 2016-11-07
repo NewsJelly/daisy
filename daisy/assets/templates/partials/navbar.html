@@ -1,0 +1,40 @@
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#not-google-plus-nav">
+        <span class="sr-only">Toggle Navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href=" ">
+        <span class="navbar-brand-text">DAISY</span>
+        <span class="navbar-brand-text-small">Data Visualization</span>
+      </a>
+    </div> <!-- ./navbar-header -->
+
+    <div class="collapse navbar-collapse" id="not-google-plus-nav">
+      <ul id="navbar-middle-pos" class="nav navbar-nav navbar-right">
+        <li>{{ isConnected }}</li>
+        <li>
+          <button type="button" ng-click="newProject()" class="btn btn-default"><span class="icon-vizmake"></span>시각화 만들기</button>
+        </li>
+        <li ng-hide="isUser">
+          <button type="button" ng-click="login()" class="btn btn-default"><i class="fa fa-lock" aria-hidden="true"></i> 로그인</button>
+        </li>
+        <li ng-if="isUser" class="dropdown">
+          <button type="button" data-toggle="dropdown" class="dropdown-toggle btn btn-default">
+            <span ng-if="globals.currentUser.profileImageId == ''" class="icon-user"></span>
+            <img ng-if="globals.currentUser.profileImageId" src="{{ globals.currentUser.profileImage }}" class="user-profile" />
+            {{ globals.currentUser.username }}
+          </button>
+          <ul class="dropdown-menu">
+            <li><a href="myroom">마이룸</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#" ng-click="logout()">로그아웃</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div> <!-- /.collapse.navbar-collapse -->
+  </div> <!-- /.container -->
+</nav>

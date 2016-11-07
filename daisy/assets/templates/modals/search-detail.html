@@ -1,0 +1,25 @@
+<div class="modal-header modal-header-large">
+  <!-- <button type="button" ng-click="Modal.close()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> -->
+  <h4 class="modal-title">{{ Modal.item.title }}</h4>
+  <div class="item-description">
+    <small class="pull-right">기관 : {{ Modal.item.organization }}</small>
+    <p class="modal-title-sub">{{ Modal.item.description }}</p>
+  </div>
+</div>
+
+<div class="modal-body top-zero-padding">
+  <div class="item-datatable">
+    <div ng-if="!Modal.isGettingData">
+      <hot-table
+        hot-id="{{ Modal.hotTableId }}"
+        datarows="Modal.data"
+        settings="Modal.item.settings">
+      </hot-table>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer modal-footer-large centered-btns">
+  <button type="button" ng-click="Modal.selectData()" ng-disabled="Modal.isGettingData" class="btn btn-primary btn-padding-horizontal-large">선택</button>
+  <button type="button" ng-click="Modal.close()" class="btn btn-default btn-padding-horizontal-large" data-dismiss="modal">취소</button>
+</div>

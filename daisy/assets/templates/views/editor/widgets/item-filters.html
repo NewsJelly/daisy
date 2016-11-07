@@ -1,0 +1,39 @@
+<div ng-show="filters.length > 0" class="dataset-option-panel">
+  <span ng-repeat="(index, item) in filters">
+    <label>
+      <input type="checkbox" checked="checked" ng-click="removeFilter(item.dataSetName)"> {{ item.dataSetName }}
+    </label>
+
+
+    <!-- <strong>'{{ item.dataSetName }}'</strong> 변수가
+
+    <span ng-if="item.values.length > 0" ng-repeat="(i, val) in item.values">
+      <span ng-if="i == 0">'</span>
+      <span ng-if="i > 0"> ,</span>
+      {{ val }}
+      <span ng-if="i == item.values.length - 1">'</span>
+    </span>
+
+    <span ng-if="item.query == '~'">
+      '{{ item.valueRanges.start }} 부터 ~ {{ item.valueRanges.end }} 까지'
+    </span>
+
+    <span ng-if="item.query == '~@'">
+      '{{item.dateRanges.start | date:'yyyy년 mm월 dd일'}} 부터 ~ {{item.dateRanges.end | date:'yyyy년 mm월 dd일'}} 까지'
+    </span>
+
+    값을 {{ item.includingState == true ? '포함' : '배제' }}
+
+    <span class="dropdown">
+      <a ng-if="filters.length != (index + 1)" href="#" class="dropdown-toggle btn btn-default btn-xs" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ vizItem[0].filterOperator == 'AND' ? '하고' : '또는' }} <span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        <li>
+          <a href="" ng-click="vizItem[0].filterOperator = 'AND'; updateFilterOperator('AND', item.itemId);">하고</a>
+        </li>
+        <li>
+          <a href="" ng-click="vizItem[0].filterOperator = 'OR'; updateFilterOperator('OR', item.itemId);">또는</a>
+        </li>
+      </ul>
+    </span> -->
+  </span>
+</div>

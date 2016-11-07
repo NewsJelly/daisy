@@ -1,19 +1,31 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import json
 import logging
 import os
+import unicodedata
+from collections import OrderedDict
 
+from django.contrib.auth import authenticate, get_user_model
 from django.contrib.admin.models import LogEntry, ADDITION
 from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import force_text
+from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
+from rest_framework import status
+from rest_framework.exceptions import APIException
 from rest_framework.reverse import reverse
 
+from djoser.serializers import LoginSerializer
+
 from .models import Category, CategoryIcon
-from .models import Project, Data, Thumbnail, VisualizeType, Visualize
+from .models import Project, Filter, Data, Thumbnail, VisualizeType, Visualize
+from .models import ProfileImage
 
 
+User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
@@ -46,7 +58,8 @@ class LoggerSerializer(serializers.ModelSerializer):
         if instance.pk:
             message = 'Added {0} "{1}"'.format(
                 force_text(instance._meta.verbose_name),
-                force_text(instance))
+                force_text(instance)
+            )
             self._logging(instance, message, ADDITION)
         return instance
 
@@ -112,6 +125,15 @@ class DataOriginSerializer(LoggerSerializer):
         fields = ('id', 'origin_data', )
 
 
+class FilterSerializer(LoggerSerializer):
+    """시각화에 사용하는 필터를 직렬화하는 클래스"""
+    content = JSONSerializerField()
+
+    class Meta:
+        model = Filter
+        fields = ('content', )
+
+
 class DataSerializer(LoggerSerializer):
     """시각화에 사용하는 데이터를 직렬화하는 클래스"""
     visualize_data = JSONSerializerField()
@@ -133,6 +155,7 @@ class ThumbnailSerializer(LoggerSerializer):
 class VisualizeSerializer(LoggerSerializer):
     """ 시각화 항목을 직렬화하는 클래스"""
     data = DataSerializer()
+    filter = FilterSerializer(required=False)
     thumbnail = ThumbnailSerializer(required=False)
     attribute = JSONSerializerField()
     # thumbnail_link = serializers.SerializerMethodField()
@@ -141,7 +164,7 @@ class VisualizeSerializer(LoggerSerializer):
     class Meta:
         model = Visualize
         fields = (
-            'id', 'order', 'data', 'thumbnail', 'visualize_type',
+            'id', 'order', 'data', 'filter', 'thumbnail', 'visualize_type',
             'type', 'attribute',
         )
         extra_kwargs = {'visualize_type': {'write_only': True}}
@@ -160,6 +183,10 @@ class VisualizeSerializer(LoggerSerializer):
 
 
 class ProjectSerializer(LoggerSerializer):
+    user = serializers.SlugRelatedField(
+        slug_field=User.USERNAME_FIELD,
+        queryset=User.objects.all()
+    )
     visualize = VisualizeSerializer(many=True)
     hits = serializers.ReadOnlyField()
     published = serializers.ReadOnlyField()
@@ -180,6 +207,7 @@ class ProjectSerializer(LoggerSerializer):
 
         for visualize_data in visualizes_data:
             data_data = visualize_data.pop('data')
+            filter_data = visualize_data.pop('filter')
             thumbnail_data = visualize_data.pop('thumbnail') if 'thumbnail' in visualize_data else {}
 
             visualize = Visualize.objects.create(
@@ -187,14 +215,19 @@ class ProjectSerializer(LoggerSerializer):
                 **visualize_data
             )
 
+            temp = json.loads(data_data['metadata'])
+            temp['title'] = unicodedata.normalize('NFC', temp['title'])
+            data_data['metadata'] = json.dumps(temp)
+
             Data.objects.create(id=visualize, **data_data)
+            Filter.objects.create(id=visualize, **filter_data)
             Thumbnail.objects.create(id=visualize, **thumbnail_data)
 
         if instance.pk:
             message = 'Added {0} "{1}"'.format(
                 force_text(instance._meta.verbose_name),
                 force_text(instance))
-            self._logging(message, instance, ADDITION)
+            self._logging(instance, message, ADDITION)
         return instance
 
     def update(self, instance, validated_data):
@@ -208,12 +241,14 @@ class ProjectSerializer(LoggerSerializer):
 
             for v_id, data in data_mapping.items():
                 data_data = data.pop('data')
+                filter_data = data.pop('filter')
                 thumbnail_data = data.pop('thumbnail') if 'thumbnail' in data else {}
 
                 v = visualize_mapping.get(v_id, None)
                 obj, created = Visualize.objects.update_or_create(
                     project=instance, order=v_id, defaults=data)
                 Data.objects.update_or_create(id=obj, defaults=data_data)
+                Filter.objects.update_or_create(id=obj, defaults=filter_data)
 
                 # 썸네일 파일이 있는 경우 삭제한다.
                 self.delete_thumbnail(obj)
@@ -245,8 +280,8 @@ class ProjectSerializer(LoggerSerializer):
             if thumbnail.image_path:
                 if os.path.isfile(thumbnail.image_path.path):
                     os.remove(thumbnail.image_path.path)
-        except Thumbnail.DoesNotExist as ex:
-            logger.error(ex)
+        except Thumbnail.DoesNotExist as e:
+            logger.error(e)
 
 
 class ListVisualizeSerializer(LoggerSerializer):
@@ -258,6 +293,10 @@ class ListVisualizeSerializer(LoggerSerializer):
 
 
 class ListProjectSerializer(LoggerSerializer):
+    user = serializers.SlugRelatedField(
+        slug_field=User.USERNAME_FIELD,
+        queryset=User.objects.all()
+    )
     visualize = ListVisualizeSerializer(many=True)
     hits = serializers.ReadOnlyField()
     published = serializers.ReadOnlyField()
@@ -266,3 +305,85 @@ class ListProjectSerializer(LoggerSerializer):
         model = Project
         fields = ('id', 'title', 'user', 'description', 'visualize',
                   'status', 'hits', 'copyright', 'published', )
+
+
+class DuplicatedError(APIException):
+    status_code = status.HTTP_409_CONFLICT
+    default_detail = _(u'사용자가 이미 존재합니다.')
+
+
+class NotRegisteredError(APIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = _(u'가입되지 않은 이메일입니다.')
+
+
+class PasswordError(APIException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    default_detail = _(u'비밀번호가 틀렸습니다.')
+
+
+class DaisyUserSerializer(LoggerSerializer):
+    email = serializers.EmailField()
+    username = serializers.CharField()
+    password = serializers.CharField(style={'input_type': 'password'},
+                                     write_only=True)
+
+    class Meta:
+        model = User
+
+    def validate(self, data):
+        try:
+            if User.objects.get(username=data['email']):
+                raise DuplicatedError()
+        except User.DoesNotExist:
+            return data
+
+    def create(self, validated_data):
+        user = User(username=validated_data['email'],
+                    email=validated_data['email'],
+                    first_name=validated_data['username'])
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
+    def to_representation(self, obj):
+        return OrderedDict([
+            ('id', obj.pk),
+            ('username', obj.first_name),
+            ('email', obj.email),
+        ])
+
+
+class DaisyLoginSerializer(LoginSerializer):
+    def validate(self, attrs):
+        self.user = authenticate(username=attrs.get(User.USERNAME_FIELD), password=attrs.get('password'))
+        if self.user:
+            if not self.user.is_active:
+                raise serializers.ValidationError(self.error_messages['inactive_account'])
+            return attrs
+        else:
+            try:
+                if User.objects.get(username=attrs.get(User.USERNAME_FIELD)):
+                    raise PasswordError()
+            except User.DoesNotExist:
+                raise NotRegisteredError()
+
+
+class DaisySetUsernameSerializer(LoggerSerializer):
+    new_email = serializers.EmailField(required=False)
+    new_username = serializers.CharField()
+
+    class Meta(object):
+        model = User
+        fields = ('new_email', 'new_username', )
+
+
+class ProfileImageSerializer(LoggerSerializer):
+    user = serializers.SlugRelatedField(
+        slug_field=User.USERNAME_FIELD,
+        queryset=User.objects.all()
+    )
+
+    class Meta:
+        model = ProfileImage
+        fields = ('id', 'user', 'image', )

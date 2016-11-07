@@ -1,0 +1,59 @@
+<div class="modal-header modal-header-large">
+  <!-- <button type="button" ng-click="Modal.close()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> -->
+  <h4 class="modal-title">{{ Modal.item.title }}</h4>
+  <div class="item-description">
+    <small ng-if="Modal.item.organization" class="pull-right">기관 : {{ Modal.item.organization }}</small>
+    <p ng-if="Modal.item.description" class="modal-title-sub">{{ Modal.item.description }}</p>
+  </div>
+</div>
+
+<div class="modal-body">
+  <div class="options-container">
+    <div class="options-panel">
+      <ul ng-repeat="(key, value) in Modal.table.columns | toArray | orderBy: 'type_first' | groupBy: 'type'">
+        <li ng-if="key != 'blank'">
+          <div class="group-title"><strong>{{ "column-type " + key | translate }}</strong></div>
+        </li>
+        <li  ng-if="key != 'blank' && column.title" ng-repeat="column in value">
+          <a href="" ng-click="column.isSelected = column.isSelected == false ? true : false; Modal.getMatch(column);" ng-class="{'selected': column.isSelected}">{{ column.title }}</a>
+        </li>
+      </ul>
+    </div>
+    <div class="chart-preview">
+      <div class="chart">
+        <div ng-if="!Modal.isMatch" class="viz-nomatch">
+          <img src="static/images/viz-nomatch.png" width="180" alt="">
+          <h3 class="msg"><i class="fa fa-caret-left" aria-hidden="true"></i> 변수를 선택해 주세요.</h3>
+        </div>
+
+        <div ng-if="Modal.isMatch" class="viz-container" ng-repeat="(key, value) in Modal.matchList.results  | toArray | orderBy: 'visualize_first'">
+          <div ng-click="Modal.selectViz(value)" class="select-viz" ng-class="{'selected': value.isSelected}">
+            <!-- <div class="dev-tip-cov">
+              <div class="dev-tip">챠트명: {{ value.name }}, alias: {{ value.alias }}, 스코어: {{ value.score }}</div>
+            </div> -->
+            <div class="viz">
+              <nj-visualization alias="value.alias" data="Modal.filteredData" filter-data="[]" item-id="viztype-recommend"  style="Modal.style"></nj-visualization>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div ng-show="Modal.isLoading" class="loading-holder">
+    <p class="loading-message">
+      <span class="loading-indicator"></span>
+      <!-- 시각화 찾는 중 -->
+    </p>
+  </div>
+</div>
+<div class="footer modal-footer-large">
+  <button ng-if="Modal.item.searchItemId && Modal.recommendType == 'default'" ng-click="Modal.goViewData()" type="button" class="btn btn-primary pull-left">
+    <i class="fa fa-angle-left" aria-hidden="true"></i>
+    데이터 보기
+  </button>
+  <!-- <button type="button" ng-if="Modal.recommendType == 'change'" ng-click="Modal.close()" class="btn btn-default pull-right cansle" data-dismiss="modal">취소</button> -->
+  <!-- <button type="button" ng-if="Modal.recommendType == 'default'" ng-click="Modal.close()" class="btn btn-default pull-right cansle" data-dismiss="modal">취소</button> -->
+  <button type="button" ng-click="Modal.close()" class="btn btn-default pull-right cansle" data-dismiss="modal">취소</button>
+  <button type="button" ng-click="Modal.addItem()" ng-disabled="!Modal.activeUseViz" class="btn btn-primary pull-right">시각화 삽입</button>
+</div>

@@ -1,0 +1,110 @@
+<div navbar></div>
+<div id="project-new-container">
+  <div id="fixed-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-8 col-xs-offset-2 padding-bottom-100">
+          <div class="item-panel">
+            <div class="viz-editor-items">
+
+              <div class="viz-view-header">
+                <div class="pull-right project-info">
+                  등록일 : {{vm.item.published | date:'yyyy.MM.dd'}}
+                  작성자 : {{vm.item.user}}
+                </div>
+                <h2 class="project-title">{{vm.item.title}}</h2>
+              </div>
+
+              <div class="panel panel-default" ng-repeat="(index, item) in vm.item.visualize">
+                <!-- 아이템 목록 -->
+                <div ng-if="vm.item.visualize.length > 0" class="viz-container">
+                  <div class="item-btns">
+                    <div class="pull-right">
+                      <button ng-click="vm.imgDownload(item.id, item.data.metadata.title)" type="button" class="btn btn-xs btn-link"><i class="fa fa-file-image-o" aria-hidden="true"></i> 이미지 다운로드</button>
+                      <button ng-click="vm.viewData(item)" type="button" class="btn btn-xs btn-link"><i class="fa fa-file-o" aria-hidden="true"></i> 데이터보기</button>
+                    </div>
+                    <small class="pull-left data-name">{{ item.data.metadata.title }}</small>
+                  </div>
+                  <div class="chart-name">
+                    <small>{{ item.type.title }}</small>
+                  </div>
+                  <div class="visualize-item-container visualize-item-{{item.id}}">
+                    <div class="viz">
+                      <nj-visualization view-item="item" properties="item.attribute" alias="item.type.alias" data="item.data.metadata.visualizeData" filter-data="[]" item-id="visualize-item-viewer"></nj-visualization>
+                    </div>
+                    <div ng-show="item.filter.content.length > 0" class="well dataset-option-panel">
+                      <span ng-repeat="(index, vlaue) in item.filter.content">
+                        {{ vlaue.dataSetName }} '이(가)
+
+                        <span ng-if="vlaue.values.length > 0" ng-repeat="(i, val) in vlaue.values">
+                          <span ng-if="i > 0"> ,</span>
+                          {{ val }}
+                        </span>
+
+                        <span ng-if="vlaue.query == '~'">
+                          <span ng-if="i > 0"> ,</span>
+                          {{ vlaue.valueRanges.start }} 부터 ~ {{ vlaue.valueRanges.end }} 까지
+                        </span>
+
+                        '를(을) {{ item.includingState == true ? '포함' : '배제' }}
+
+                        <span ng-if="item.filter.content.length > 1" class="dropdown">
+                          <span ng-if="index != (item.filter.content.length - 1)">{{ vlaue.operator == 'AND' ? '하고' : '또는' }}</span>
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div ng-if="vm.isOwner" class="project-item-footer">
+                <button ng-click="vm.editProject()" type="button" class="btn btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> 수정</button>
+                <button ng-click="vm.deleteProject()" type="button" class="btn btn-primary"><i class="fa fa-trash" aria-hidden="true"></i> 삭제</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /.row -->
+    </div><!-- /.container -->
+  </div><!-- /#fixed-container -->
+  <div class="container">
+    <div class="row">
+      <div ng-click="vm.showDataSideBar = vm.showDataSideBar == true ? false : true" ng-show="vm.showDataSideBar" ng-hide="!vm.showDataSideBar" class="view-data-sidebar-back"></div>
+      <div ng-show="vm.showDataSideBar" id="view-data-sidebar" class="col-xs-offset-8 col-xs-4">
+        <div class="view-data-sidebar-container">
+          <div class="viz-editor-data">
+            <div class="data-panel-heading">
+              <div class="data-info">
+                <ul>
+                  <li>
+                    <strong>· 제목</strong> {{ vm.dataTitle }}
+                  </li>
+                  <li>
+                    <strong>· 설명</strong> {{ vm.dataDescription }}
+                  </li>
+                  <li>
+                    <strong>· 기관</strong> {{ vm.dataOrganization }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div ng-show="vm.showDataId == item.id" class="data-table" ng-repeat="(index, item) in vm.item.visualize">
+              <hot-table
+                hot-id="view-data-{{ item.id }}"
+                settings="vm.hotTableSettings">
+              </hot-table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div ng-if="vm.isLoading" ng-class="{'data-loading-bar': vm.isLoading}">
+  <p class="loading-message">
+    <span class="loading-indicator"></span>
+    데이터 로드 중
+  </p>
+</div>

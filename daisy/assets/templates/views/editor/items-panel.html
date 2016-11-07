@@ -1,0 +1,33 @@
+<div class="viz-editor-items">
+  <!-- 아이템 목록 -->
+
+  <div class="panel panel-default" ng-repeat="(index, item) in items" ng-class="{selectedItem: item.itemId == onEditorItemId}">
+    <div ng-if="items.length > 0" class="viz-container" ng-click="selectItem(item.itemId)">
+      <div class="item-btns">
+        <div class="pull-right">
+          <button ng-if="item.useVisualized != false" ng-click="imgDownload(item.itemId, item.metadata.title)" type="button" class="btn btn-xs btn-link"><i class="fa fa-file-image-o" aria-hidden="true"></i> 이미지 다운로드</button>
+          <button ng-if="item.useVisualized != false" ng-click="dataOptionManagerModal(item, 'change')" type="button" class="btn btn-xs btn-link"><i class="fa fa-star" aria-hidden="true"></i> 시각화 추천</button>
+          <button ng-if="item.useVisualized != false" ng-click="changeChartModal(item.itemId)" type="button" class="btn btn-xs btn-link"><i class="fa fa-area-chart" aria-hidden="true"></i> 시각화 변경</button>
+          <button ng-if="item.useVisualized != false" ng-click="deleteItem(item.itemId)" type="button" class="btn btn-xs btn-link"><i class="fa fa-trash-o" aria-hidden="true"></i> 시각화 삭제</button>
+          <button ng-if="item.useVisualized == false" ng-click="viewDataSidebar(item.itemId)" type="button" class="btn btn-xs btn-link"> 데이터 보기</button>
+        </div>
+        <input type="text" class="pull-left data-name" ng-model="item.metadata.title" ng-value="'item.metadata.title'" />
+      </div>
+      <div class="visualize-item-container visualize-item-{{item.itemId}}">
+        <div ng-if="item.useVisualized != false">
+          <div class="viz">
+            <!-- <nj-visualization alias="item.alias" data="item.visualizeData" filter-data="item.filteredData" item-id="item.itemId" item="item"></nj-visualization> -->
+            <nj-visualization alias="item.alias" item-id="item.itemId" item="item"></nj-visualization>
+          </div>
+          <div ng-if="onEditorItemId == item.itemId" widget-item-filters item-id="item.itemId"></div>
+        </div>
+        <div ng-if="item.useVisualized == false">
+          <div class="none-recommend-btns">
+            <button ng-click="dataOptionManagerModal(item, 'change')" type="button" class="btn btn-primary">시각화 추천</button>
+            <button ng-click="selectChartModal(item.itemId)" type="button" class="btn btn-primary">시각화 변경</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

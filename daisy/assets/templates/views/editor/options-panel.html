@@ -1,0 +1,98 @@
+<div id="setting-chart" class="viz-editor-options">
+  <ul class="list-group list-group-flat">
+    <!-- <li class="list-group-item">
+      <h3 class="list-group-item-heading">데이터</h3>
+    </li> -->
+    <li>
+      <ul class="list-group">
+        <li class="list-group-item">
+          <h4 class="list-group-item-heading sub-title">{{ "column-options categories" | translate }}</h4>
+        </li>
+        <li ng-if="value.group == 'categories'" ng-repeat="value in columns | orderBy: 'group'" ng-init="isOpend = filterGroups.categories[0].dataSetName == value.columnTitle ? true : false">
+        <!-- <li ng-if="value.group == 'categories'" ng-repeat="value in columns | orderBy: 'group'" ng-init="isOpend = false"> -->
+          <div class="variable">
+            <a ng-click="isOpend = isOpend == false ? true : false">
+              <i ng-if="isOpend" class="fa fa-caret-down" aria-hidden="true"></i>
+              <i ng-if="!isOpend" class="fa fa-caret-right" aria-hidden="true"></i>
+              {{ value.columnTitle }}
+            </a>
+            <button ng-click="removeColumn(value)" type="button" class="remove-variable btn btn-xs btn-danger"><i class="fa fa-trash" aria-hidden="true"></i></button>
+          </div>
+          <div ng-show="isOpend" class="option-panel">
+            <div widget-column-options on-editor-item-id="onEditorItemId" column="value" is-opend="isOpend"></div>
+          </div>
+        </li>
+        <li>
+          <div class="add-column-btn">
+            <button popover-placement="bottom" uib-popover-template="'search-columns-categories.html'" class="btn btn-default" type="button" ng-disabled="removedColumns.length == 0" popover-elem>
+              + 변수추가
+            </button>
+            <script type="text/ng-template" id="search-columns-categories.html">
+              <div class="widget-search-columns">
+                <div class="form-group search-container">
+                  <input type="text" class="form-control input-block exclude" ng-model="searchText" placeholder="검색"></input>
+                </div>
+                <ul class="list-group list-group-flat">
+                  <!-- <li ng-if="columnType != 'numeric' && columnType != 'date'" ng-repeat="(columnType, columns) in removedColumns | toArray | groupBy: 'columnType'"> -->
+                  <li ng-repeat="(columnType, columns) in removedColumns | toArray | groupBy: 'columnType'">
+                    <h4 class="list-group-item-heading key-title">{{ columnType }}</h4>
+                    <ul>
+                      <li ng-repeat="column in columns | filter:searchText">
+                        <a href="" ng-click="column.group = 'categories'; addColumn(column, groupSort)">{{ column.columnTitle }}</a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </script>
+          </div>
+        </li>
+
+        <li class="list-group-item">
+          <h4 class="list-group-item-heading sub-title">{{ "column-options dimensions" | translate }}</h4>
+        </li>
+        <li ng-if="value.group != 'categories'" ng-repeat="value in columns" ng-init="isOpend = isOpend = filterGroups.dimensions[0].dataSetName == value.columnTitle ? true : false">
+        <!-- <li ng-if="value.group != 'categories'" ng-repeat="value in columns" ng-init="isOpend = false"> -->
+          <div class="variable">
+            <a ng-click="isOpend = isOpend == false ? true : false">
+              <i ng-if="isOpend" class="fa fa-caret-down" aria-hidden="true"></i>
+              <i ng-if="!isOpend" class="fa fa-caret-right" aria-hidden="true"></i>
+              {{ value.columnTitle }}
+            </a>
+            <button ng-click="removeColumn(value)" type="button" class="remove-variable btn btn-xs btn-danger"><i class="fa fa-trash" aria-hidden="true"></i></button>
+          </div>
+          <div ng-show="isOpend" class="option-panel">
+            <div widget-column-options on-editor-item-id="onEditorItemId" column="value" is-opend="isOpend"></div>
+          </div>
+        </li>
+        <li>
+          <div class="add-column-btn">
+            <button popover-placement="bottom" uib-popover-template="'search-columns-dimensions.html'" class="btn btn-default" type="button" ng-disabled="removedColumns.length == 0" popover-elem>
+              + 변수추가
+            </button>
+            <script type="text/ng-template" id="search-columns-dimensions.html">
+              <div class="widget-search-columns">
+                <div class="form-group search-container">
+                  <input type="text" class="form-control input-block exclude" ng-model="searchTextDimensions" placeholder="검색"></input>
+                </div>
+                <ul class="list-group list-group-flat">
+                  <li ng-if="columnType == 'numeric' || columnType == 'date'" ng-repeat="(columnType, columns) in removedColumns | toArray | groupBy: 'columnType'">
+                    <h4 class="list-group-item-heading key-title">{{ columnType }}</h4>
+                    <ul>
+                      <li ng-if="column.group != 'categories'" ng-repeat="column in columns | filter:searchTextDimensions">
+                        <a href="" ng-click="column.group = 'dimensions'; addColumn(column, groupSort)">{{ column.columnTitle }}</a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </script>
+          </div>
+        </li>
+      </ul>
+    </li>
+    <li class="list-group-item">
+      <!-- <div widget-chart-options on-editor-item-id="onEditorItemId"></div> -->
+    </li>
+  </ul>
+</div>

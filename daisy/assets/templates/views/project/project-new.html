@@ -1,0 +1,99 @@
+<!-- <div navbar></div> -->
+<nav class="navbar navbar-inverse navbar-fixed-top project-navbar">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#project-navbar-collapse" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="" ng-click="vm.goHome()">
+        <span class="navbar-brand-text">DAISY</span>
+        <span class="navbar-brand-text-small">Data Visualization</span>
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="project-navbar-collapse">
+      <form class="navbar-form navbar-left project-navbar-navbar-form">
+        <div class="form-group">
+          <input type="text" class="form-control project-title" ng-model="vm.projectTitle" placeholder="제목없음" focus-me="vm.titleInputFocus" pu-elastic-input pu-elastic-input-minwidth="180px" pu-elastic-input-maxwidth="{{vm.projectTitleWidthMax}}">
+        </div>
+      </form>
+      <ul class="nav navbar-nav navbar-right">
+        <li ng-if="vm.isEdit"><button ng-click="vm.deleteProject()" type="button" class="btn btn-primary navbar-btn"><i class="fa fa-trash" aria-hidden="true"></i> 삭제</button></li>
+        <li><button ng-click="vm.cancel()" type="button" class="btn btn-primary navbar-btn"><span class="icon-btn-cancel"></span>취소</button></li>
+        <li><button ng-click="vm.save()" type="button" class="btn btn-primary navbar-btn"><span class="icon-btn-confirm"></span>저장</button></li>
+        <li ng-show="globals.currentUser.username" class="dropdown">
+          <button type="button" data-toggle="dropdown" class="dropdown-toggle btn btn-default navbar-btn">
+            <span ng-if="globals.currentUser.profileImageId == ''" class="icon-user"></span>
+            <img ng-if="globals.currentUser.profileImageId" src="{{ globals.currentUser.profileImage }}" class="user-profile" />
+            {{ globals.currentUser.username }}
+          </button>
+          <ul class="dropdown-menu">
+            <li><a href="" ng-click="vm.goMyRoom()">마이룸</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#" ng-click="vm.logout()">로그아웃</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<div id="project-new-container">
+  <div id="fixed-container">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-8">
+          <div class="item-panel">
+            <div viz-editor-items on-editor-item-id="vm.onEditorItemId"></div>
+            <div class="add-data-area">
+              <div class="add-data-btn">
+                <button ng-click="vm.showDataSearchBar = vm.showDataSearchBar == true ? false : true" type="button" class="btn-link"><span style="font-size: 46px;">+</span> 차트 추가하기</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /.row -->
+    </div><!-- /.container -->
+  </div><!-- /#fixed-container -->
+
+  <div class="container">
+    <div class="row">
+      <div ng-show="vm.showDataSearchBar" ng-hide="!vm.showDataSearchBar" id="add-data-sidebar" class="col-xs-offset-8 col-xs-4">
+        <div class="add-data-sidebar-container">
+          <div viz-editor-add-data on-editor-item-id="vm.onEditorItemId" edit-project-id="vm.stateParams.editProjectId" types="vm.types"></div>
+        </div>
+      </div>
+      <div ng-click="vm.showDataSearchBar = vm.showDataSearchBar == true ? false : true" ng-show="vm.showDataSearchBar" ng-hide="!vm.showDataSearchBar" class="add-data-sidebar-back"></div>
+      <div id="sidebar" class="col-xs-offset-8 col-xs-4" ng-class="vm.activeTab == 0 ? 'isScroll' : 'isNoScroll'">
+        <div class="sidebar-container">
+          <uib-tabset active="vm.activeTab">
+            <uib-tab index="0" heading="상세설정" ng-click="vm.activeTab = 0">
+              <div viz-editor-options on-editor-item-id="vm.onEditorItemId"></div>
+            </uib-tab>
+            <uib-tab index="1" heading="데이터" ng-click="vm.activeTab = 1; vm.resizeHotTabe();">
+              <div viz-editor-data on-editor-item-id="vm.onEditorItemId"></div>
+            </uib-tab>
+          </uib-tabset>
+        </div>
+      </div><!-- /#sidebar -->
+    </div><!-- /.col -->
+  </div><!-- /.container -->
+</div><!-- /#project-new-container -->
+
+<!-- TODO : 글로벌 로딩 바 -->
+<div ng-if="vm.isGettingData" ng-class="{'data-loading-bar': vm.isGettingData}">
+  <p class="loading-message">
+    <span class="loading-indicator"></span>
+    전체 데이터 로드 중
+    <!-- TODO : 프로그레스 바 -->
+  </p>
+</div>
+<div ng-if="vm.isLoading" ng-class="{'data-loading-bar': vm.isLoading}">
+  <p class="loading-message">
+    <span class="loading-indicator"></span>
+    데이터 로드 중
+  </p>
+</div>

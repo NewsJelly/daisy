@@ -1,0 +1,50 @@
+<div class="modal-header">
+  <button type="button" ng-click="Modal.close()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <!-- <h4 class="modal-title" ng-if="Modal.type == 'editProfile' && Modal.editField == 'username'">회원정보 수정 > 이름변경</h4> -->
+  <!-- <h4 class="modal-title" ng-if="Modal.type == 'editProfile' && Modal.editField == 'email'">회원정보 수정 > 아이디변경</h4> -->
+  <h4 class="modal-title" ng-if="Modal.type == 'editProfile'">회원정보 수정</h4>
+  <h4 class="modal-title" ng-if="Modal.type == 'resetPassword'">비밀번호 변경</h4>
+</div>
+
+<div class="modal-body">
+  <!-- 프로필 수정 -->
+  <div ng-if="Modal.type == 'editProfile'">
+    <div ng-show="Modal.error" class="alert alert-danger">{{ Modal.error }}</div>
+    <form ng-submit="Modal.changeProfile()" role="form">
+      <div class="form-group" ng-if="Modal.editField == 'username'">
+        <input ng-if="Modal.editField == 'username'" type="text" name="new_username" id="new_username" class="form-control" ng-model="Modal.new_username" required placeholder="변경할 이름을 입력 하세요." value="{{ Modal.new_username }}" />
+      </div>
+      <div class="form-group" ng-if="Modal.editField == 'email'">
+        {{ globals.currentUser.email }}
+      </div>
+      <div class="form-group" ng-if="Modal.editField == 'email'">
+        <input ng-if="Modal.editField == 'email'" type="text" name="new_email" id="new_email" class="form-control" ng-model="Modal.new_email" required placeholder="변경할 아이디를 입력 하세요." value="{{ Modal.new_email }}" />
+      </div>
+      <div class="form-group" ng-if="Modal.editField == 'email'">
+        <input ng-if="Modal.editField == 'email'" type="password" name="password_confirm" id="password_confirm" class="form-control" ng-model="Modal.password_confirm" required placeholder="비밀번호를 입력 하세요." value="{{ Modal.password_confirm }}" />
+      </div>
+      <div class="form-actions form-actions-login">
+        <button type="submit" class="btn btn-primary">저장</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 비밀번호 변경 -->
+  <div ng-if="Modal.type == 'resetPassword'">
+    <div ng-show="Modal.cp_error" class="alert alert-danger">{{ Modal.cp_error }}</div>
+    <form ng-submit="Modal.changePassword()">
+      <div class="form-group">
+        <input type="password" name="password" id="password" class="form-control" ng-model="Modal.password" required placeholder="현재 비밀번호" />
+      </div>
+      <div class="form-group">
+        <input type="password" name="passwordReset" id="passwordReset" class="form-control" ng-model="Modal.passwordReset" required placeholder="비밀번호 재설정" />
+      </div>
+      <div class="form-group">
+        <input type="password" name="passwordResetConfirm" id="passwordResetConfirm" class="form-control" ng-model="Modal.passwordResetConfirm" required placeholder="비밀번호 재설정 확인" />
+      </div>
+      <div class="form-actions form-actions-login">
+        <button type="submit" class="btn btn-primary">변경하기</button>
+      </div>
+    </form>
+  </div>
+</div>

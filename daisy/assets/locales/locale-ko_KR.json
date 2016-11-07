@@ -1,0 +1,18 @@
+{
+  "column-options dimensions": "수치",
+  "column-options categories": "범주",
+
+  "column-type numeric": "숫자",
+  "column-type string": "텍스트",
+  "column-type categorical": "카테고리",
+  "column-type date": "날짜",
+  "column-type string-address": "주소",
+
+  "chart-type bar": "바차트",
+  "chart-type line": "라인차트",
+  "chart-type scatterplot": "스캐터차트",
+  "chart-type treemap": "트리맵차트",
+  "chart-type pie": "파이차트",
+  "chart-type parallel-coords": "평행좌표",
+  "chart-type map": "좌표지도"
+}

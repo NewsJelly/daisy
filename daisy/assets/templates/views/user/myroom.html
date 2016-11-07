@@ -1,0 +1,94 @@
+<div navbar></div>
+<div id="user-myroom-container">
+  <div id="header-container">
+    <div class="container">
+      <div class="media">
+        <div class="media-left profile-image-container">
+          <a href="" class="edit-profile-image">수정</a>
+          <input type="file" ngf-select ng-model="picFile" name="file"
+           accept="image/*" ngf-max-size="2MB" required
+           ng-change="vm.editProfileImage(picFile)"
+           ngf-model-invalid="vm.errorFile" class="edit-profile-image-input">
+
+          <img class="media-object user-profile img-thumbnail" src="{{ vm.userProfileImage }}" alt="" width="136" height="136" />
+        </div>
+        <div class="media-body">
+          <ul class="user-info">
+            <li>
+              <strong class="title">이름</strong>
+              {{ globals.currentUser.username }}
+              <a href="#" class="edit-profile" ng-click="vm.editProfile('editProfile', 'username')">수정</a>
+            </li>
+            <li>
+              <strong class="title">아이디</strong>
+              {{ globals.currentUser.email }}
+              <!-- <a href="#" class="edit-profile" ng-click="vm.editProfile('editProfile', 'email')">수정</a> -->
+            </li>
+            <li>
+              <strong class="title">비밀번호</strong>
+              <a href="#" class="edit-profile" ng-click="vm.editProfile('resetPassword', '')">비밀번호 변경</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="body-container" class="container">
+    <div ng-if="vm.projectList.results.length === 0">
+      <p>프로젝트가 없습니다.</p>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-4" ng-repeat="project in vm.projectList.results">
+        <div class="thumbnail project-list">
+          <img ui-sref="project-item({id: project.id})" ng-if="project.visualize[0].thumbnail.image" data-ng-src="{{project.visualize[0].thumbnail.image}}" alt="{{project.title}}">
+          <div ui-sref="project-item({id: project.id})" class="caption">
+            <h3 class="title">{{project.title}}</h3>
+            <div>
+              <p class="published pull-right">{{project.published | date:'yyyy.MM.dd'}}</p>
+              <p class="user-name">작성자 : {{ vm.userProfile.username }}</p>
+            </div>
+          </div>
+          <button ng-click="vm.editItem(project.id)" class="edit-item btn btn-default">
+            <i class="fa fa-pencil-square" aria-hidden="true"></i>
+          </button>
+          <button ng-click="vm.deleteItem(project.id)" class="delete-item btn btn-danger">
+            <i class="fa fa-trash" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="project-pagination text-center">
+        <uib-pagination total-items="vm.projectList.count" ng-model="vm.currentPage" items-per-page="6" max-size=5 previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="vm.pageChanged()"></uib-pagination>
+      </div>
+    </div>
+
+    <!-- <div class="row">
+      <div class="col-xs-12">
+        <div class="item-list col-xs-12">
+          <div ng-repeat="project in vm.projectList.results" class="card">
+            <div class="preview" ui-sref="project-item({id: project.id})">
+              <img class="preview-img" ng-if="project.visualize[0].thumbnail.image" data-ng-src="{{project.visualize[0].thumbnail.image}}" alt="">
+            </div>
+            <div class="by" ui-sref="project-item({id: project.id})">
+              <p>{{project.title}}</p>
+              <span class="pull-left">작성자 : {{project.user}}</span>
+              <span class="pull-right">{{project.published | date:'yyyy.MM.dd'}}</span>
+            </div>
+            <a href="#" ng-click="vm.deleteItem(project.id)" class="delete-item">삭제</a>
+          </div>
+        </div>
+        <div class="project-pagination col-xs-12 text-center">
+          <uib-pagination total-items="vm.projectList.count" ng-model="vm.currentPage" items-per-page="6" max-size=5 previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="vm.pageChanged()"></uib-pagination>
+        </div>
+      </div>
+      <div>
+        <pre ng-if="false">{{vm.projectList | json}}</pre>
+      </div>
+    </div> -->
+
+  </div>
+</div>

@@ -1,0 +1,88 @@
+<div class="modal-header">
+  <button type="button" ng-click="Modal.close()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <h4 class="modal-title">{{ Modal.title }}</h4>
+</div>
+
+
+<!-- 로그인 폼 -->
+<div ng-if="Modal.step == 0">
+  <form name="form_step_0" ng-submit="Modal.login()" role="form">
+    <div class="modal-body">
+      <div ng-show="Modal.form_step_0_error" class="alert alert-danger">{{ Modal.form_step_0_error }}</div>
+      <div class="form-group">
+        <input type="email" name="username" id="username" class="form-control" ng-model="Modal.username" required placeholder="Email" />
+        <!-- <span ng-show="form_step_0.username.$dirty && form_step_0.username.$error.required" class="help-block">이메일을 입력 하세요.</span> -->
+      </div>
+      <div class="form-group">
+        <input type="password" name="password" id="password" class="form-control" ng-model="Modal.password" required placeholder="Password" />
+        <!-- <span ng-show="form_step_0.password.$dirty && form_step_0.password.$error.required" class="help-block">비밀번호를 입력 하세요.</span> -->
+      </div>
+      <div class="remember-forgot">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" name="remembrMe" ng-click="Modal.remembrMe = Modal.remembrMe == true ? false : true" ng-checked="Modal.remembrMe" />
+                <small>비밀번호 기억하기</small>
+              </label>
+            </div>
+          </div>
+          <div class="col-md-6 login-menu">
+            <a href="#" ng-click="Modal.changeStep(1)" class="btn"><small>회원가입</small></a>
+            <a href="#" ng-click="Modal.changeStep(2)" class="btn"><small>비밀번호 찾기</small></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="form-actions form-actions-login">
+        <button type="submit" class="btn btn-primary">로그인</button>
+        <!-- <button type="submit" ng-disabled="form.$invalid || dataLoading" class="btn btn-primary">로그인</button>
+        <img ng-if="dataLoading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="/> -->
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- 회원 가입 폼 -->
+<div ng-if="Modal.step == 1">
+  <form name="form_step_1" ng-submit="Modal.signup()" role="form">
+    <div class="modal-body">
+      <div ng-show="Modal.form_step_1_error" class="alert alert-danger">{{ Modal.form_step_1_error }}</div>
+      <!-- <div ng-show="form_step_1.signUsername.$dirty && form_step_1.signUsername.$error.required" class="alert alert-danger">이름을 입력 하세요.</div>
+      <div ng-show="form_step_1.signEmail.$dirty && form_step_1.signEmail.$error.required" class="alert alert-danger">이메일을 입력 하세요.</div>
+      <div ng-show="form_step_1.signPassword.$dirty && form_step_1.signPassword.$error.required" class="alert alert-danger">비밀번호를 입력 하세요.</div> -->
+      <div class="form-group">
+        <input type="text" name="signUsername" id="signUsername" class="form-control" ng-model="Modal.signUsername" required placeholder="Name" />
+      </div>
+      <div class="form-group">
+        <input type="email" name="signEmail" id="signEmail" class="form-control" ng-model="Modal.signEmail" required placeholder="Email" />
+      </div>
+      <div class="form-group">
+        <input type="password" name="signPassword" id="signPassword" class="form-control" ng-model="Modal.signPassword" required placeholder="Password" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="form-actions form-actions-login">
+        <button type="submit" class="btn btn-primary">회원가입</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- 비밀번호 찾기 폼 -->
+<div ng-if="Modal.step == 2">
+  <form name="form_step_2" ng-submit="Modal.forgot()" role="form">
+    <div class="modal-body">
+      <div ng-show="Modal.form_step_2_error" class="alert alert-danger">{{ Modal.form_step_2_error }}</div>
+      <div class="form-group">
+        <input type="text" name="forgotEmail" id="forgotEmail" ng-model="Modal.forgotEmail" class="form-control" placeholder="이메일" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="form-actions form-actions-login">
+        <button type="submit" class="btn btn-primary">확인</button>
+      </div>
+    </div>
+  </form>
+</div>

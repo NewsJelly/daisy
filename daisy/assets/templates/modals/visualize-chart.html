@@ -1,11 +1,23 @@
 <div class="modal-header">
   <button type="button" ng-click="Modal.close()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-  <h4 class="modal-title"><span class="icon-viz-change"></span>시각화 변경</h4>
+  <h4 class="modal-title">시각화 변경</h4>
 </div>
 
 <div class="modal-body">
-  <figure ng-repeat="item in Modal.list" ng-click="Modal.select(item)" class="cursor-pointer">
-    <img data-ng-src="{{ item.image }}" class="img-rounded">
-    <figcaption title="{{ item.title }}">{{ item.title }}</figcaption>
-  </figure>
+  <ul class="chart-list">
+    <li ng-repeat="item in Modal.chartList" ng-class="item.name == Modal.alias ? 'selected' : ''">
+      <button class="chart-item" ng-class="item.matched == false ? 'notMatched' : ''" ng-click="Modal.alias = item.name" ng-disabled="!item.matched">
+        <span class="chart-icon {{ item.name }}"></span>
+        <span class="chart-title">
+          {{ "chart-type " + item.name | translate }}
+        </span>
+      </button>
+    </li>
+  </ul>
+</div>
+
+<div class="modal-footer">
+  <button ng-click="Modal.changeModel()" type="button" class="btn btn-primary">
+    확인
+  </button>
 </div>

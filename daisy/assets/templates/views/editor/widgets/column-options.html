@@ -1,0 +1,193 @@
+<div class="widget-column-options">
+  <div class="dropdown option-panel-types" ng-if="column.columnType == 'string' || key != 'dimensions'">
+    <a href="#" class="dropdown-toggle btn btn-default" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ column.columnSort == null ? '기본' : column.columnSort == true ? '오름차순' : '내림차순' }} <span class="caret"></span></a>
+    <ul class="dropdown-menu">
+      <li>
+        <a href="#" ng-click="column.columnSort = true; sortColumn(true)" type="button">오름차순</a>
+      </li>
+      <li>
+        <a href="#" ng-click="column.columnSort = false; sortColumn(false)" type="button">내림차순</a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="option-panel-types">
+    <div>
+      {{ column.columnTitle }}이(가) 아래와 같을 때 해당 행을
+      <div class="dropdown-menu-cov">
+        <a href="#" class="dropdown-toggle btn btn-default" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ includingState == true ? '포함' : '배제' }} <span class="caret"></span></a>
+        <ul class="dropdown-menu dropdown-right">
+          <li><a href="#" ng-click="includingState = true">포함</a></li>
+          <li><a href="#" ng-click="includingState = false">배제</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="option-panel-types" ng-if="column.columnType == 'text'">
+    <select
+      multiple
+      chosen
+      placeholder-text-multiple="'값을 선택 하세요.'"
+      no-results-text="'로딩중.'"
+      width="'100%'"
+      options="data"
+      ng-model="column.filters"
+      ng-options="label for label in data">
+    </select>
+
+    <p class="help-block">
+      <small>값 추가를 위해 ‘스페이스', ‘탭', 또는 ‘엔터' 키를 눌러 값을 추가합니다. 따옴표(“)로 감싸면, 띄어쓰기가 포함된 값도 추가 가능합니다</small>
+    </p>
+  </div>
+
+  <div class="option-panel-types" ng-if="column.columnType == 'numeric'">
+    <div class="media">
+      <div class="media-left">
+        <div class="dropdown">
+          <a href="" class="btn btn-default btn-block dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ filter_keyname[query] }} <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#" ng-click="setFilterKey('==')">같을 때(=)</a></li>
+            <li><a href="#" ng-click="setFilterKey('>')">클 때</a></li>
+            <li><a href="#" ng-click="setFilterKey('<')">작을 때</a></li>
+            <li><a href="#" ng-click="setFilterKey('>=')">크거나 같을 때</a></li>
+            <li><a href="#" ng-click="setFilterKey('<=')">작거나 같을 때</a></li>
+            <li><a href="#" ng-click="setFilterKey('~')">사이일 때</a></li>
+            <li><a href="#" ng-click="setFilterKey('multi')">여럿 중 하나 일 때</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="media-body">
+        <!-- 같을때 -->
+        <select
+          ng-if="query == '=='"
+          class="btn btn-default btn-block"
+          data-placeholder-text-single="'값을 선택 하세요.'"
+          no-results-text="'로딩중.'"
+          disable-search="true"
+          chosen
+          width="'100%'"
+          options="data"
+          ng-model="column.filters"
+          ng-options="label for label in data | unique: 'label'">
+          <option value=""></option>
+        </select>
+
+        <!-- 클때 -->
+        <input
+          ng-if="query == '>'"
+          class="form-control input-block"
+          ng-model="column.filters"
+          string-to-number>
+        </input>
+
+        <!-- 작을때 -->
+        <input
+          ng-if="query == '<'"
+          class="form-control input-block"
+          ng-model="column.filters"
+          string-to-number>
+        </input>
+
+        <!-- 크거나 같을때 -->
+        <input
+          ng-if="query == '>='"
+          class="form-control input-block"
+          ng-model="column.filters"
+          string-to-number>
+        </input>
+
+        <!-- 작거나 같을때 -->
+        <input
+          ng-if="query == '<='"
+          class="form-control input-block"
+          ng-model="column.filters"
+          string-to-number>
+        </input>
+
+        <!-- 사이일때 -->
+        <div ng-if="query == '~'" class="row option-column-range-cov">
+          <div class="col-md-6">
+            <input
+              ng-if="query == '~'"
+              type="number"
+              class="form-control"
+              ng-model="column.filterRanges.start"
+              string-to-number>
+            </input>
+          </div>
+          <div class="col-md-6">
+            <input
+              ng-if="query == '~'"
+              type="number"
+              class="form-control"
+              ng-model="column.filterRanges.end"
+              string-to-number>
+            </input>
+          </div>
+          <div class="icon-range-center">~</div>
+        </div>
+
+        <!-- 여럿중 하나일때 -->
+        <select
+          multiple
+          chosen
+          ng-if="query == 'multi'"
+          width="'100%'"
+          options="data"
+          data-placeholder-text-single="'값을 입력 하세요.'"
+          ng-model="column.filters"
+          ng-options="label for label in data">
+        </select>
+      </div>
+    </div>
+
+    <!-- 사이일때 슬라이더 -->
+    <div class="slider-container">
+      <slider
+        ng-if="query == '~'"
+        ng-model="filterRangeModel"
+        on-stop-slide="changeFilterRanges($event, value)"
+        min="sliderOptions.min"
+        max="sliderOptions.max"
+        precision="2"
+        step="0.1"
+        range="sliderOptions.range">
+      </slider>
+    </div>
+  </div>
+
+  <div class="option-panel-types" ng-if="column.columnType == 'date'">
+    <div class="datetimepicker-container">
+      <div class="row">
+        <div class="col-md-6">
+          <p class="input-group input-group-sm">
+            <input type="text" class="form-control" uib-datepicker-popup ng-model="column.dateRanges.start" is-open="openedDatepickerStart" datepicker-options="dateOptions" show-button-bar="dateOptions.showButtonBar" ng-required="true" close-text="Close" />
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default" ng-click="openDatepickerStart()"><i class="fa fa-calendar" aria-hidden="true"></i></button>
+            </span>
+          </p>
+        </div>
+
+        <div class="col-md-6">
+          <p class="input-group input-group-sm">
+            <input type="text" class="form-control" uib-datepicker-popup ng-model="column.dateRanges.end" is-open="openedDatepickerEnd" datepicker-options="dateOptions" show-button-bar="dateOptions.showButtonBar" ng-required="true" close-text="Close" />
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default" ng-click="openDatepickerEnd()"><i class="fa fa-calendar" aria-hidden="true"></i></button>
+            </span>
+          </p>
+        </div>
+      </div>
+      <div class="icon-datetimepicker-center">~</div>
+    </div>
+  </div>
+
+  <!-- <div class="add-filter-btn-cov">
+    <button class="btn btn-primary" ng-click="addFilter()">적용</button>
+  </div> -->
+
+  <div class="add-filter-btn-cov on-doropdown">
+    <button class="btn btn-default btn-line btn-add-filter" ng-click="addFilter()">+ 필터추가</button>
+    <button class="btn btn-default btn-line btn-reset-filter" ng-click="resetFilter()">필터 초기화</button>
+  </div>
+</div>

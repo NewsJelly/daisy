@@ -2,33 +2,36 @@
 {% load daisy_extras %}
 <!DOCTYPE html>
 {% with DESCRIPTION='' SITE_TITLE='Daisy' SITE_THUMBNAIL='' %}
-<html lang="ko" ng-app="daisy">
+<html lang="ko" ng-app="daisy" popover-close exclude-class="exclude">
 <head>
   <title>{{ SITE_TITLE }}</title>
   <base href="/{% get_postfix %}" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-  <link rel="stylesheet" type="text/css" href="{% static 'stylesheets/styles.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'stylesheets/lib.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'stylesheets/styles.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'stylesheets/lib.css' %}">
+  <!-- <link rel="stylesheet" type="text/css" href="{% static 'stylesheets/app.min.css' %}"> -->
 </head>
 
-<body ng-cloak ng-controller="AppController as App">
+<body ng-cloak ng-class="bodyClasses" ng-controller="AppController as App">
   {% csrf_token %}
   {% verbatim %}
-  <div ui-view></div>
+  <div class="ui-view-container" ui-view></div>
   <file-uploader></file-uploader>
   <div class="toast">
-    <div class="alert "ng-if="App.ToastService.message" type="{{ App.ToastService.message.type }}" close="App.ToastService.close()">
+    <div class="alert" ng-if="App.ToastService.message" type="{{ App.ToastService.message.type }}" close="App.ToastService.close()">
       <p class="bg-danger">{{ App.ToastService.message.text }}</p>
     </div>
-    </div>
   </div>
-{% endverbatim %}
+  {% endverbatim %}
   {% include 'footer.html' %}
 
   <script>(function(w){'use strict';w.appConfig={siteTitle:'{{ SITE_TITLE }}',debug:{% if debug %}true{% else %}false{% endif %},staticUrl:'{% get_static_prefix %}'};})(window);</script>
 
-  <script type="text/javascript" src="{% static 'js/lib.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/app.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/lib.js' %}" charset="utf-8"></script>
+  <script type="text/javascript" src="{% static 'js/angular.lib.js' %}" charset="utf-8"></script>
+  <script type="text/javascript" src="{% static 'js/app.js' %}" charset="utf-8"></script>
 </body>
 </html>
 {% endwith %}

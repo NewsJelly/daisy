@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import logging
 
 from collections import OrderedDict
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.admin.models import LogEntry, DELETION, CHANGE
 from django.contrib.contenttypes.models import ContentType
 from django.views.decorators.csrf import csrf_protect
@@ -16,17 +19,23 @@ from rest_framework import status
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework import pagination
-from rest_framework import authentication, permissions
+from rest_framework import authentication
 from rest_framework.response import Response
 
+from djoser.views import PasswordResetView, SetUsernameView
+
+from .permissions import IsOwnerOrReadOnly, IsOwner
 
 from .models import Category, CategoryIcon
 from .models import Project, Data, VisualizeType
+from .models import ProfileImage
 
 from .serializers import CategorySerializer, CategoryIconSerializer
 from .serializers import ProjectSerializer, DataSerializer,\
     DataOriginSerializer, VisualizeTypeSerializer, ListProjectSerializer
+from .serializers import ProfileImageSerializer
 
+User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
@@ -57,13 +66,13 @@ class DefaultReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends: 검색과 관련된 부분(search= 혹은 {key}= 형식
     """
     authentication_classes = (
-        authentication.SessionAuthentication,
-        # authentication.TokenAuthentication,
-        # authentication.BasicAuthentication,
+        authentication.BasicAuthentication,
+        authentication.TokenAuthentication,
+        # authentication.SessionAuthentication,
     )
-    # permission_classes = (
-    #    permissions.IsAuthenticated,
-    # )
+    permission_classes = (
+        IsOwnerOrReadOnly,
+    )
 
     if not settings.DEBUG:
         from rest_framework.renderers import JSONRenderer
@@ -114,6 +123,8 @@ class LoggerViewSet(DefaultViewSet):
             )
         except Exception as ex:
             logger.error(ex)
+            print ex
+
 
     @method_decorator(csrf_protect)
     def create(self, request, *args, **kwargs):
@@ -169,7 +180,7 @@ class ProjectViewSet(LoggerViewSet):
 
     def list(self, request, *args, **kwargs):
         self.serializer_class = ListProjectSerializer
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.filter_queryset(self.get_queryset()).filter(status=Project.STATUS_PUBLISHED)
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -183,6 +194,30 @@ class ProjectViewSet(LoggerViewSet):
         instance = self.get_object()
         instance.hits += 1
         instance.save()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+
+class MyProjectViewSet(ProjectViewSet):
+    permission_classes = (
+        IsOwner,
+    )
+
+    def list(self, request, *args, **kwargs):
+        user = self.request.user
+        self.serializer_class = ListProjectSerializer
+        queryset = self.filter_queryset(self.get_queryset().filter(user_id=user))
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
@@ -203,3 +238,41 @@ class DataOriginViewSet(DefaultReadOnlyViewSet):
 class VisualizeTypeViewSet(LoggerViewSet):
     queryset = VisualizeType.objects.all()
     serializer_class = VisualizeTypeSerializer
+
+
+class ProfileImageViewSet(LoggerViewSet):
+    queryset = ProfileImage.objects.all()
+    serializer_class = ProfileImageSerializer
+
+    permission_classes = (
+        IsOwner,
+    )
+
+    def list(self, request, *args, **kwargs):
+        user = self.request.user
+        queryset = self.filter_queryset(self.get_queryset().filter(user_id=user))
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class DaisyPasswordResetView(PasswordResetView):
+    plain_body_template_name = None
+    html_body_template_name = 'password_reset_email_body.html'
+
+
+class DaisySetUsernameView(SetUsernameView):
+    def action(self, serializer):
+        self.request.user.first_name = serializer.data['new_username']
+        if 'new_email' in serializer.data:
+            if User.objects.get(username=serializer.data['new_email']):
+                return Response({'detail': u'이미 사용 중인 이메일입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            self.request.user.email = serializer.data['new_email']
+            self.request.user.username = serializer.data['new_email']
+        self.request.user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)

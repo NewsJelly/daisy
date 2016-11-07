@@ -1,0 +1,48 @@
+<!-- TEST -->
+<!-- <input type="text" ng-model="title"/>
+<a ng-click="addItem()">add</a>
+<ul>
+  <li ng-repeat="item in items">{{item.item}}</li>
+</ul> -->
+<!-- TEST -->
+
+
+<div class="panel panel-default" ng-repeat="(index, item) in items">
+  <!-- 아이템 목록 -->
+  <div ng-if="items.length > 0" class="viz-container">
+    <div class="item-btns">
+      <div class="pull-right">
+        <button ng-click="imgDownload('png')" type="button" class="btn btn-xs btn-link"><i class="fa fa-file-image-o" aria-hidden="true"></i> 이미지 다운로드</button>
+        <button ng-click="dataOptionManagerModal(vm.stateParams.data)" type="button" class="btn btn-xs btn-link"><i class="fa fa-star" aria-hidden="true"></i> 시각화 추천</button>
+        <button ng-click="openChartModal()" type="button" class="btn btn-xs btn-link"><i class="fa fa-area-chart" aria-hidden="true"></i> 시각화 변경</button>
+        <button ng-click="deleteItem(key)" type="button" class="btn btn-xs btn-link"><i class="fa fa-trash-o" aria-hidden="true"></i> 삭제</button>
+      </div>
+      <small class="pull-left data-name">{{ item.dataTitle }}</small>
+    </div>
+    <div class="visualize-item-container">
+      <nj-visualization alias="item.alias" add-header="item.addHeader" header="item.header" style="{ width: 570, height: 400, margin: { top: 50, right: 50, bottom: 50, left: 50 } }" table="item.table"></nj-visualization>
+
+      <!-- <div class="well dataset-option-panel">
+        데이터셋이 '단어'를 포함
+        <a href="">하고</a>
+        데이터셋이 '단어'를 포함
+      </div> -->
+    </div>
+  </div>
+
+  <!-- 아이템이 없는 경우  -->
+  <div ng-if="items.length == 0" class="recommend-viz-btns">
+    <div class="row">
+      <button type="button" class="btn btn-lg btn-primary col-xs-4 col-xs-offset-1">시각화 추천</button>
+      <button type="button" class="btn btn-lg btn-primary col-xs-4 col-xs-offset-2">차트선택</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- 차트 추가 하기 Btn -->
+<div class="add-data-area">
+  <div class="add-data-btn">
+    <button ng-click="vm.changeSidebar('choose-method')" type="button" class="btn-link"><span style="font-size: 46px;">+</span> 차트 추가하기</button>
+  </div>
+</div>

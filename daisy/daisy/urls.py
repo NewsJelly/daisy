@@ -26,7 +26,7 @@ urlpatterns = [
     url(r'^{}admin/'.format(settings.POSTFIX), admin.site.urls),
     url(r'^{}api/'.format(settings.POSTFIX), include('api.urls')),
     url(r'^{}api/(?P<url>.*)$'.format(settings.POSTFIX),
-        ProxyView.as_view(source='api/%(url)s')),
+        ProxyView.as_view(source='api/v2/%(url)s')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

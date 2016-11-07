@@ -1,0 +1,36 @@
+<div id="data-search-sidebar-container" class="viz-editor-add-data">
+  <ul class="list-group list-group-flat">
+    <li class="list-group-item">
+      <h3 class="list-group-item-heading sub-title-dark">데이터 추가하기</h3>
+      <ul class="add-data-btns">
+        <li>
+          <a href="" ng-click="goSearchPage()" class="btn btn-default btn-block btn-line">공공 데이터 검색</a>
+        </li>
+        <li>
+          <a href="" ng-click="uploadFile()" class="btn btn-default btn-block btn-line">데이터 업로드</a>
+        </li>
+      </ul>
+    </li>
+    <li class="list-group-item">
+      <h3 class="list-group-item-heading sub-title-dark">사용중인 데이터</h3>
+      <ul class="data-list">
+        <li ng-repeat="(index, data) in datas">
+
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="data-info">
+                <h4 class="title">{{ data.dataTitle }}</h4>
+                <p class="chart">{{ data.alias }}</p>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="data-btn">
+                <a href="" ng-click="dataOptionManagerModal(data)" class="btn btn-primary btn-block">데이터 복사하기</a>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>

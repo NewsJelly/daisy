@@ -1,0 +1,87 @@
+<div navbar></div>
+<div ng-if="vm.showbackProject" class="back-project container">
+  <div class="alert alert-success" role="alert">
+    <a href="" ui-sref="project-new-v2"><i class="fa fa-caret-left" aria-hidden="true"></i> 프로젝트로 돌아가기</a>
+  </div>
+</div>
+<div class="search-result">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <form ng-submit="vm.searchByKeyword(keyword)">
+          <div class="input-group">
+            <span class="input-group-addon-custom"><i class="fa fa-search" aria-hidden="true"></i></span>
+            <input ng-model="keyword" type="text" class="form-control" placeholder="키워드 입력" ng-value="vm.keyword" focus-me="vm.searchFocus">
+            <span class="input-group-btn">
+              <button ui-sref="search({'keyword': keyword})" class="btn btn-primary btn-search-main" type="button">검 색</button>
+            </span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+ <div id="search-container" class="container">
+   <div id="item-container">
+     <!-- 데이터 검색 -->
+     <div class="search-result-area">
+       <!-- <div ng-show="vm.isSearching" class="alert">
+         <button type="button" class="close sidebar-hide-btn" data-dismiss="alert" aria-hidden="true">&times;</button>
+         <strong>검색 중</strong>
+       </div> -->
+       <div ng-if="vm.searchResult.results.length === 0 || vm.keyword === ''" class="list-no-results">
+         <i class="fa fa-file-text-o icon" aria-hidden="true"></i>
+         <p>검색 결과 없음</p>
+       </div>
+
+       <!-- 검색결과 -->
+       <div ng-if="vm.searchResult.results.length > 0" class="result-list">
+         <small class="search-result-totalcount">데이터 수 : {{ vm.searchResult.count }} 건</small>
+         <ul>
+           <li class="search-result-item" ng-repeat="item in vm.searchResult.results" ng-click="vm.searchDetailModal(item)" ng-init="isMouseOver = false" ng-class="isMouseOver ? 'mouseOver' : 'mouseLeave'">
+             <h4>{{item.title}}</h4>
+             <div class="list-body">
+               <div class="list-contents-left">
+                 <div class="item-description">
+                   <div class="description">
+                     <small>{{item.description}}</small>
+                   </div>
+                   <div class="source">
+                     <small>기관 : {{item.organization}}</small>
+                   </div>
+                   <div class="tags">
+                     <span class="label label-info">{{item.cols}} columns</span>
+                     <span class="label label-info label-line">{{item.rows}} rows</span>
+                   </div>
+                 </div>
+               </div>
+
+               <div class="list-contents-right item-datatable-container" ng-mouseover="isMouseOver = true;" ng-mouseleave="isMouseOver = false;">
+                 <div class="item-datatable">
+                  <hot-table
+                    hot-id="visualize-table-data-{{item.id}}"
+                    settings="item.settings"
+                    datarows="item.data">
+                  </hot-table>
+                </div>
+               </div>
+             </div>
+           </li>
+         </ul>
+
+         <div class="project-pagination text-center">
+           <uib-pagination total-items="vm.searchResult.count" ng-model="vm.searchPage" max-size=5 items-per-page="10" previous-text="&lsaquo;" next-text="&rsaquo;" force-ellipses="true" ng-change="vm.searchPageChanged()"></uib-pagination>
+         </div>
+       </div>
+     </div><!-- /공공데이터 검색 -->
+
+   </div>
+ </div>
+
+ <div ng-if="vm.isGettingData || vm.isSearching" ng-class="{'data-loading-bar': vm.isGettingData || vm.isSearching}">
+   <p class="loading-message">
+     <span class="loading-indicator"></span>
+     데이터 로드 중
+   </p>
+ </div>

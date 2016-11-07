@@ -1,0 +1,55 @@
+<div class="modal-header">
+  <button type="button" ng-click="Modal.close()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <h4 class="modal-title">{{ Modal.title }}</h4>
+  <small class="description">{{ Modal.description }}</small>
+</div>
+
+<div class="modal-body">
+  <div class="options-container">
+    <div class="options-panel">
+      <ul ng-repeat="(key, value) in Modal.table.columns | groupBy: 'type'">
+        <li ng-if="key != 'blank'">
+          <div class="group-title"><strong>{{ key }}</strong></div>
+        </li>
+        <li ng-if="key != 'blank'" ng-repeat="column in value" ng-init="isSelected = false">
+          <a href="" ng-click="isSelected = isSelected == false ? true : false; Modal.selectOption(column, isSelected)" ng-class="{'selected': isSelected}">{{ column.title }}</a>
+          <!-- <i ng-show="isSelected" class="fa fa-check selected" aria-hidden="true"></i> -->
+        </li>
+      </ul>
+    </div>
+    <div class="chart-preview">
+      <div class="chart">
+        <div>
+          <div ng-if="Modal.match.results.length == 0" class="viz-nomatch">
+            <img src="/static/images/viz-nomatch.png" width="200" alt="">
+            <h3>
+              <i class="fa fa-arrow-left" aria-hidden="true"></i> 변수를 선택해 주세요.
+            </h3>
+          </div>
+        </div>
+
+        <div class="viz-container" ng-repeat="(key, value) in Modal.match.results  | toArray | orderBy: 'visualize_first'">
+          <!-- <div class="viz-group-title"><strong>그룹명 : {{ value[0].visualize_group }}</strong></div> -->
+          <!-- <div ng-repeat="match in value">
+            <div ng-click="Modal.selectViz(match)" class="select-viz" ng-class="{'selected': match.isSelected}">
+              <nj-visualization alias="Modal.findViztypeByAlias(match.alias)" style="{ width: 570, height: 400, margin: { top: 50, right: 50, bottom: 50, left: 50 } }" table="Modal.tableFiltered"></nj-visualization>
+            </div>
+          </div> -->
+          <div ng-click="Modal.selectViz(value[0])" class="select-viz" ng-class="{'selected': value[0].isSelected}">
+            <nj-visualization alias="Modal.findViztypeByAlias(value[0].alias)" style="{ width: 570, height: 400, margin: { top: 50, right: 50, bottom: 50, left: 50 } }" table="Modal.tableFiltered"></nj-visualization>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div ng-show="Modal.isHold == true || Modal.isGettingData == true" class="loading-holder"></div>
+</div>
+<div class="footer">
+  <button type="button" class="btn btn-primary pull-left">
+    <i class="fa fa-chevron-left" aria-hidden="true"></i>
+    데이터 보기
+  </button>
+  <button type="button" ng-click="Modal.close()" class="btn btn-default pull-right cansle" data-dismiss="modal">취소</button>
+  <button type="button" ng-click="Modal.addThisViz()" ng-disabled="!Modal.activeUseViz" class="btn btn-primary pull-right">시각화 삽입</button>
+</div>

@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
     'api'
 ]
 
@@ -79,16 +81,28 @@ WSGI_APPLICATION = 'daisy.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            'USER': '',
+            'PASSWORD': '',
+            'HOST': '',
+            'PORT': '',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': os.environ.get('DEFAULT_ENGINE', ''),
+            'NAME': os.environ.get('DEFAULT_NAME', ''),
+            'USER': os.environ.get('DEFAULT_USER', ''),
+            'PASSWORD': os.environ.get('DEFAULT_PASSWORD', ''),
+            'HOST': os.environ.get('DEFAULT_HOST', ''),
+            'PORT': os.environ.get('DEFAULT_PORT', ''),
+        }
+    }
 
 
 # Password validation
@@ -139,9 +153,39 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'assets'),
 )
 
+# EMAIL
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '25'))
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'off') == 'on'
+EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'off') == 'on'
+
+# DJOSER
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': POSTFIX + 'password/reset/confirm/{uid}/{token}',
+    'SERIALIZERS': {
+        'login': 'api.serializers.DaisyLoginSerializer',
+        'set_username': 'api.serializers.DaisySetUsernameSerializer',
+        'user': 'api.serializers.DaisyUserSerializer',
+        'user_registration': 'api.serializers.DaisyUserSerializer',
+    },
+}
+
+# REST FRAMEWORK
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}
+if not DEBUG:
+    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = (
+        'rest_framework.renderers.JSONRenderer',
+    )
 
 # REST PROXY
 REST_PROXY = {
-    'HOST': 'http://daisy.newsjel.ly/solution',
+    'HOST': 'http://daisy.newsjel.ly/v1.0',
     'VERIFY_SSL': False,
 }

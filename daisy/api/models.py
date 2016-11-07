@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import os
 
+from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.db import models
 from django.dispatch import receiver
@@ -102,7 +103,7 @@ class Project(models.Model):
 
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100, null=False)
-    user = models.CharField(max_length=100, null=False)
+    user = models.ForeignKey(User, related_name='project')
     description = models.CharField(max_length=1024, blank=True)
     status = models.SmallIntegerField(
         choices=STATUS_CHOICES,
@@ -119,7 +120,7 @@ class Project(models.Model):
         ordering = ['-published']
 
     def __unicode__(self):
-        return '{} - {}'.format(self.__class__.__name__, self.id)
+        return self.title
 
     def save(self, *args, **kwargs):
         if self.status == self.STATUS_PUBLISHED and self.published is None:
@@ -133,7 +134,8 @@ class VisualizeType(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100, null=False, unique=True)
     alias = models.CharField(max_length=100, null=False, unique=True)
-    image = models.TextField()
+    image = models.ImageField(null=True,
+                              upload_to='uploaded_images/visualize_type/')
     attribute = models.TextField()
     sample_image = models.ImageField(null=True,
                                      upload_to='uploaded_images/sample_data/')
@@ -148,6 +150,10 @@ class VisualizeType(models.Model):
         ordering = ['id']
 
     @property
+    def get_absolute_image_url(self):
+        return '{}{}'.format(MEDIA_URL, self.image.url)
+
+    @property
     def get_absolute_sample_image_url(self):
         return '{}{}'.format(MEDIA_URL, self.sample_image.url)
 
@@ -156,10 +162,10 @@ class VisualizeType(models.Model):
         return '{}{}'.format(MEDIA_URL, self.setting_image.url)
 
     def __unicode__(self):
-        return '{} - {}'.format(self.__class__.__name__, self.id)
+        return self.title
 
     def image_tag(self):
-        return '<img src="{}" />'.format(self.image)
+        return '<img src="{}" />'.format(self.image.url)
 
     def sample_image_tag(self):
         return '<img src="{}" />'.format(self.sample_image.url)
@@ -188,13 +194,19 @@ def auto_delete_file_on_change_from_visualize_type(sender, instance, **kwargs):
         return False
 
     try:
+        old_image = VisualizeType.objects.get(pk=instance.pk).image
         old_sample = VisualizeType.objects.get(pk=instance.pk).sample_image
         old_setting = VisualizeType.objects.get(pk=instance.pk).setting_image
     except VisualizeType.DoesNotExist:
         return False
 
+    new_image = instance.image
     new_sample = instance.sample_image
     new_setting = instance.setting_image
+
+    if old_image and old_image != new_image:
+        if os.path.isfile(old_image.path):
+            os.remove(old_image.path)
 
     if old_sample and old_sample != new_sample:
         if os.path.isfile(old_sample.path):
@@ -212,6 +224,10 @@ def auto_delete_file_on_delete_from_visualize_type(sender, instance, **kwargs):
     :param instance: VisualizeType의 인스턴스
     :param kwargs: dict
     """
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
+
     if instance.sample_image:
         if os.path.isfile(instance.sample_image.path):
             os.remove(instance.sample_image.path)
@@ -241,9 +257,30 @@ class Visualize(models.Model):
 
     class Meta:
         db_table = 'visualize'
+        ordering = ['order']
 
     def __unicode__(self):
-        return '{} - {}'.format(self.__class__.__name__, self.id)
+        return u'{}'.format(self.project.title)
+
+
+class Filter(models.Model):
+    """시각화에서 사용하는 필터"""
+
+    id = models.OneToOneField(
+        Visualize,
+        db_column='id',
+        on_delete=models.CASCADE,
+        primary_key=True
+    )
+    content = models.TextField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'filter'
+
+    def __unicode__(self):
+        return u'{}'.format(self.id)
 
 
 class Data(models.Model):
@@ -276,7 +313,7 @@ class Data(models.Model):
         db_table = 'data'
 
     def __unicode__(self):
-        return '{} - {}'.format(self.__class__.__name__, self.id)
+        return u'{}'.format(self.id)
 
 
 class Thumbnail(models.Model):
@@ -298,7 +335,7 @@ class Thumbnail(models.Model):
         db_table = 'thumbnail'
 
     def __unicode__(self):
-        return '{} - {}'.format(self.__class__.__name__, self.id)
+        return u'{}'.format(self.id)
 
     def image_tag(self):
         return '<img src="{}" />'.format(self.image)
@@ -336,3 +373,51 @@ def auto_delete_file_on_delete_from_thumbnail(sender, instance, **kwargs):
     if instance.image_path:
         if os.path.isfile(instance.image_path.path):
             os.remove(instance.image_path.path)
+
+
+###############################################################################
+class ProfileImage(models.Model):
+    user = models.OneToOneField(User, related_name='profile')
+    image = models.ImageField(null=True,
+                              blank=True,
+                              upload_to='uploaded_images/profile/')
+    image_base64 = models.TextField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'profile_image'
+
+
+@receiver(models.signals.pre_save, sender=ProfileImage)
+def auto_delete_file_on_change_from_profile_image(sender, instance, **kwargs):
+    """profile_image 테이블이 갱신되는 경우 저장된 파일을 함께 삭제한다.
+    :param sender: 신호
+    :param instance: ProfileImage의 인스턴스
+    :param kwargs: dict
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_image = ProfileImage.objects.get(pk=instance.pk).image
+    except ProfileImage.DoesNotExist:
+        return False
+
+    new_image = instance.image
+
+    if old_image and old_image != new_image:
+        if os.path.isfile(old_image.path):
+            os.remove(old_image.path)
+
+
+@receiver(models.signals.post_delete, sender=ProfileImage)
+def auto_delete_file_on_delete_from_profile_image(sender, instance, **kwargs):
+    """profile_image 테이블에서 삭제되는 경우 저장된 파일도 함께 삭제한다.
+    :param sender: 신호
+    :param instance: ProfileImage의 인스턴스
+    :param kwargs: dict
+    """
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)

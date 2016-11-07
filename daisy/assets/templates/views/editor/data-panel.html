@@ -1,0 +1,58 @@
+<div class="viz-editor-data">
+  <div class="data-panel-heading">
+    <div class="data-info">
+      <ul>
+        <li>
+          <strong>· 제목</strong> {{ item.metadata.title }}
+        </li>
+        <li>
+          <strong>· 설명</strong> {{ item.metadata.description }}
+        </li>
+        <li>
+          <strong>· 기관</strong> {{ item.metadata.organization }}
+        </li>
+      </ul>
+      <a href="" class="remove-data" ng-click="removeData()">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+      </a>
+    </div>
+    <!-- <div class="data-heading-btns" ng-init="selectAria = false">
+      <button ng-click="setDataAria(selectAria); selectAria = selectAria == false ? true : false;" type="button" class="btn btn-primary select-aria" ng-class="{isSelectAria: selectAria}">
+        <i class="fa fa-crop" aria-hidden="true"></i> 영역지정
+      </button>
+      <a href="" ng-click="clearDataAria()" class="btn btn-primary">
+        <i class="fa fa-repeat" aria-hidden="true"></i> 초기화
+      </a>
+      <small>영역을 지정하여 시각화 할수 있습니다.</small>
+    </div> -->
+  </div>
+  <div ng-if="isOpenOptionPanel" class="widget-hot-table-option-panel">
+    <span class="arrow-up" ng-style="optionPanelStyle"></span>
+    <div widget-column-options on-editor-item-id="onEditorItemId" column="optionPanelValue" is-opend="isOpend"></div>
+  </div>
+  <div
+    ng-repeat="(index, item) in items"
+    class="data-table"
+    ng-class="{selectedItem: item.itemId == onEditorItemId}">
+
+    <hot-table
+      hot-id="data-panel-hottable-{{ item.itemId }}"
+      settings="hotTableSettings">
+    </hot-table>
+  </div>
+
+  <!-- <div class="footer-btns">
+    <div class="row">
+      <div class="col-xs-6 col-left">
+        <button type="button" ng-click="newProject()" class="btn btn-default btn-block btn-line">
+          데이터 변경
+        </button>
+      </div>
+      <div class="col-xs-6 col-right">
+        <button ng-click="deleteData(onEditorItemId)" type="button" class="btn btn-default btn-block btn-line">
+          데이터 삭제
+        </button>
+      </div>
+    </div>
+  </div> -->
+</div>
