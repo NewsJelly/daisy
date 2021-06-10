@@ -1,4 +1,4 @@
-Django==1.9.6
+Django==2.2.24
 django-filter==0.13.0
 django-password-reset==0.9
 django-rest-framework-proxy==1.6.0
